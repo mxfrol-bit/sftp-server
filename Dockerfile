@@ -1,5 +1,5 @@
 FROM atmoz/sftp:debian
 
-RUN sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config || true
-RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
-RUN echo "AuthenticationMethods password" >> /etc/ssh/sshd_config
+RUN mkdir -p /etc/sftp.d
+
+RUN printf '#!/bin/bash\nsed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config\necho "PasswordAuthentication yes" >> /etc/ssh/sshd_config\n' > /etc/sftp.d/enable-password.sh && chmod +x /etc/sftp.d/enable-password.sh
