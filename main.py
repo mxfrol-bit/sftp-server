@@ -18,4 +18,3 @@ async def upload(file: UploadFile = File(...), x_api_key: str = Header(...)):
 @app.get("/")
 def health():
     return {"status": "running"}
-```
