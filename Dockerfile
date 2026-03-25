@@ -1,7 +1,15 @@
-FROM atmoz/sftp:debian
+FROM ubuntu:22.04
 
-COPY sshd_custom.conf /etc/ssh/sshd_config.d/custom.conf
+RUN apt-get update && apt-get install -y openssh-server && \
+    mkdir /var/run/sshd && \
+    useradd -m -s /bin/bash agro && \
+    echo "agro:frol261262" | chpasswd && \
+    mkdir -p /home/agro/upload && \
+    chown agro:agro /home/agro/upload && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "ChallengeResponseAuthentication no" >> /etc/ssh/sshd_config && \
+    echo "PermitRootLogin no" >> /etc/ssh/sshd_config
 
-RUN mkdir -p /etc/sftp.d && \
-    printf '#!/bin/bash\ncat /etc/ssh/sshd_config.d/custom.conf >> /etc/ssh/sshd_config\nsed -i "s/PasswordAuthentication no/PasswordAuthentication yes/g" /etc/ssh/sshd_config\nsed -i "/AuthenticationMethods publickey/d" /etc/ssh/sshd_config\n' > /etc/sftp.d/enable-password.sh && \
-    chmod +x /etc/sftp.d/enable-password.sh
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]
