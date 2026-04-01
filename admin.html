@@ -83,7 +83,9 @@
 <script>
 let selectedFile = null;
 let filesData = [];
+
 function apiKey() { return document.getElementById('apiKey').value; }
+
 function log(msg, type='info') {
   const el = document.getElementById('logArea');
   if (!el) return;
@@ -93,6 +95,7 @@ function log(msg, type='info') {
   el.appendChild(line);
   el.scrollTop = el.scrollHeight;
 }
+
 async function loadFiles() {
   try {
     const res = await fetch('/files', { headers: { 'x-api-key': apiKey() } });
@@ -112,6 +115,7 @@ async function loadFiles() {
     document.getElementById('fileCount').textContent = 'Ошибка';
   }
 }
+
 async function selectFile(name) {
   selectedFile = name;
   loadFiles();
@@ -121,23 +125,49 @@ async function selectFile(name) {
     const res = await fetch(`/files/${name}`, { headers: { 'x-api-key': apiKey() } });
     const data = await res.json();
     const fi = filesData.find(f => f.name === name);
-    const stats = Array.isArray(data) ? `
+    const stats = Array.isArray(data.orders) ? `
       <div class="stats">
-        <div class="stat-card"><div class="stat-label">Записей</div><div class="stat-value">${data.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Заказов</div><div class="stat-value">${data.orders.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Сумма</div><div class="stat-value">${data.summary?.total_amount?.toLocaleString('ru') || '—'} ₽</div></div>
         <div class="stat-card"><div class="stat-label">Размер</div><div class="stat-value">${(fi.size/1024).toFixed(1)} KB</div></div>
         <div class="stat-card"><div class="stat-label">Загружен</div><div class="stat-value" style="font-size:14px">${fi.created}</div></div>
       </div>` : '';
     document.getElementById('mainContent').innerHTML = `
       ${stats}
       <div class="json-viewer">${JSON.stringify(data, null, 2)}</div>
-      <div class="log" id="logArea"><div class="log-line log-info">Файл загружен: ${name}</div></div>`;
+      <div class="log" id="logArea"><div class="log-line log-info">Файл открыт: ${name}</div></div>`;
   } catch(e) {
     document.getElementById('mainContent').innerHTML = '<div class="empty"><p>Ошибка загрузки</p></div>';
   }
 }
-async function saveToDb() { log('⚠️ БД — скоро будет подключена', 'err'); }
-async function sendToSite() { log('⚠️ Сайт — скоро будет подключён', 'err'); }
-async function analyzeAi() { log('⚠️ AI анализ — скоро будет подключён', 'err'); }
+
+async function saveToDb() {
+  if (!selectedFile) return;
+  log('Сохранение в БД...', 'info');
+  try {
+    const res = await fetch(`/save-to-db/${selectedFile}`, {
+      method: 'POST',
+      headers: { 'x-api-key': apiKey() }
+    });
+    const data = await res.json();
+    if (data.status === 'ok') {
+      log(`✅ Сохранено записей: ${data.saved}`, 'ok');
+    } else {
+      log(`❌ Ошибка: ${JSON.stringify(data)}`, 'err');
+    }
+  } catch(e) {
+    log(`❌ Ошибка: ${e}`, 'err');
+  }
+}
+
+async function sendToSite() {
+  log('⚠️ Сайт — скоро будет подключён', 'err');
+}
+
+async function analyzeAi() {
+  log('⚠️ AI анализ — скоро будет подключён', 'err');
+}
+
 async function deleteFile() {
   if (!confirm(`Удалить ${selectedFile}?`)) return;
   await fetch(`/files/${selectedFile}`, { method: 'DELETE', headers: { 'x-api-key': apiKey() } });
@@ -147,6 +177,7 @@ async function deleteFile() {
   document.getElementById('mainContent').innerHTML = '<div class="empty"><h2>Выберите файл</h2></div>';
   loadFiles();
 }
+
 loadFiles();
 setInterval(loadFiles, 30000);
 </script>
