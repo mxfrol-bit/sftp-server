@@ -75,7 +75,12 @@ async def save_to_db(filename: str, x_api_key: str = Header(...)):
     upload_id = upload.data[0]["id"] if upload.data else None
     orders = data.get("orders", [])
     saved = 0
+    skipped = 0
     for order in orders:
+        existing = sb.table("orders").select("id").eq("order_id", order.get("order_id")).execute()
+        if existing.data:
+            skipped += 1
+            continue
         sb.table("orders").insert({
             "upload_id": upload_id,
             "order_id": order.get("order_id"),
@@ -91,7 +96,7 @@ async def save_to_db(filename: str, x_api_key: str = Header(...)):
         saved += 1
     if upload_id:
         sb.table("uploads").update({"status": "saved"}).eq("id", upload_id).execute()
-    return {"status": "ok", "saved": saved}
+    return {"status": "ok", "saved": saved, "skipped": skipped}
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin():
