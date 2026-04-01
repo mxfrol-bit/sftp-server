@@ -70,33 +70,32 @@ async def save_to_db(filename: str, x_api_key: str = Header(...)):
         raise HTTPException(status_code=403)
     sb = get_supabase()
     content = sb.storage.from_("uploads").download(filename)
-    data = json.loads(content)
-    upload = sb.table("uploads").select("id").eq("filename", filename).execute()
-    upload_id = upload.data[0]["id"] if upload.data else None
-    orders = data.get("orders", [])
-    saved = 0
-    skipped = 0
-    for order in orders:
-        existing = sb.table("orders").select("id").eq("order_id", order.get("order_id")).execute()
-        if existing.data:
-            skipped += 1
-            continue
-        sb.table("orders").insert({
-            "upload_id": upload_id,
-            "order_id": order.get("order_id"),
-            "order_date": order.get("date"),
-            "client_name": order.get("client", {}).get("name"),
-            "client_inn": order.get("client", {}).get("inn"),
-            "client_phone": order.get("client", {}).get("phone"),
-            "total": order.get("total"),
-            "status": order.get("status"),
-            "comment": order.get("comment"),
-            "items": json.dumps(order.get("items", []), ensure_ascii=False)
-        }).execute()
-        saved += 1
+    data = json.loads(content.decode("utf-8-sig"))
+    upload_res = sb.table("uploads").select("id").eq("filename", filename).execute()
+    upload_id = upload_res.data[0]["id"] if upload_res.data else None
+    number = data.get("Номер")
+    existing = sb.table("needs").select("id").eq("number", number).execute()
+    if existing.data:
+        return {"status": "skipped", "reason": f"Номер {number} уже в базе"}
+    sb.table("needs").insert({
+        "upload_id": upload_id,
+        "number": number,
+        "date": data.get("Дата"),
+        "status": data.get("Статус"),
+        "nomenclature": data.get("Номенклатура"),
+        "buyer": data.get("Покупатель"),
+        "delivery_address": data.get("Адрес выгрузки"),
+        "delivery_date": data.get("Срок поставки"),
+        "volume": data.get("Объём"),
+        "amount": data.get("Сумма"),
+        "remains": data.get("Осталось"),
+        "deal_type": data.get("Тип сделки"),
+        "margin_source": data.get("Источник маржинальности"),
+        "suppliers": json.dumps(data.get("Закупка", []), ensure_ascii=False)
+    }).execute()
     if upload_id:
         sb.table("uploads").update({"status": "saved"}).eq("id", upload_id).execute()
-    return {"status": "ok", "saved": saved, "skipped": skipped}
+    return {"status": "ok", "number": number, "suppliers": len(data.get("Закупка", []))}
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin():
