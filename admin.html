@@ -6,127 +6,75 @@
 <title>Agro Admin</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@400;600;700&display=swap');
-
   :root {
-    --bg: #080c0f;
-    --surface: #0e1418;
-    --surface2: #141c22;
-    --border: #1e2a32;
-    --border2: #243040;
-    --text: #d4e4f0;
-    --muted: #4a6070;
-    --accent: #00d4aa;
-    --accent2: #0099ff;
-    --warn: #ff8c00;
-    --danger: #ff3355;
-    --purple: #8855ff;
-    --green: #00cc66;
+    --bg: #080c0f; --surface: #0e1418; --surface2: #141c22; --border: #1e2a32; --border2: #243040;
+    --text: #d4e4f0; --muted: #4a6070; --accent: #00d4aa; --accent2: #0099ff;
+    --warn: #ff8c00; --danger: #ff3355; --purple: #8855ff; --green: #00cc66;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
-
-  /* HEADER */
-  .header {
-    height: 52px; background: var(--surface); border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; padding: 0 20px; gap: 16px;
-  }
-  .logo { font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.05em; }
+  .header { height: 52px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 16px; }
+  .logo { font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); }
   .live-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
   @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
   .live-text { font-size: 10px; color: var(--green); letter-spacing: 0.1em; }
-  .api-key-wrap { margin-left: auto; display: flex; align-items: center; gap: 8px; }
-  .api-label { font-size: 10px; color: var(--muted); }
-  .api-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-family: inherit; width: 200px; }
-
-  /* STATS */
+  .api-input { margin-left: auto; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-family: inherit; width: 200px; }
   .stats { height: 56px; background: var(--surface); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); }
   .stat { display: flex; flex-direction: column; justify-content: center; padding: 0 16px; border-right: 1px solid var(--border); }
   .stat:last-child { border-right: none; }
   .stat-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
   .stat-val { font-size: 18px; font-weight: 600; font-family: 'Unbounded', sans-serif; }
-  .stat-val.green { color: var(--green); }
-  .stat-val.blue { color: var(--accent2); }
-  .stat-val.orange { color: var(--warn); }
-  .stat-val.accent { color: var(--accent); }
-
-  /* LAYOUT */
   .layout { display: flex; height: calc(100vh - 108px); }
-
-  /* SIDEBAR */
   .sidebar { width: 300px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
   .sidebar-top { padding: 10px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
   .search { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 7px 10px; border-radius: 4px; font-size: 11px; font-family: inherit; width: 100%; }
   .search:focus { outline: none; border-color: var(--accent); }
   .filter-row { display: flex; gap: 6px; }
-  .fselect { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px 8px; border-radius: 4px; font-size: 10px; font-family: inherit; flex: 1; cursor: pointer; }
+  .fselect { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px 8px; border-radius: 4px; font-size: 10px; font-family: inherit; flex: 1; }
   .btn-sm { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-size: 10px; font-family: inherit; cursor: pointer; white-space: nowrap; }
   .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
-
-  /* UPLOAD ZONE */
-  .drop-zone {
-    margin: 8px 10px; border: 1px dashed var(--border2); border-radius: 6px;
-    padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s;
-    font-size: 10px; color: var(--muted); letter-spacing: 0.05em;
-  }
+  .drop-zone { margin: 8px 10px; border: 1px dashed var(--border2); border-radius: 6px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 10px; color: var(--muted); }
   .drop-zone:hover, .drop-zone.drag { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.04); }
   .drop-zone input { display: none; }
-
-  /* BATCH ACTIONS */
   .batch-bar { padding: 6px 10px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; align-items: center; background: var(--bg); }
   .batch-label { font-size: 10px; color: var(--muted); flex: 1; }
-  .btn-batch { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 8px; border-radius: 3px; font-size: 10px; font-family: inherit; cursor: pointer; transition: all 0.15s; }
-  .btn-batch:hover { border-color: var(--accent2); color: var(--accent2); }
-  .btn-batch.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.08); }
-
-  /* FILE LIST */
+  .btn-batch { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 8px; border-radius: 3px; font-size: 10px; font-family: inherit; cursor: pointer; }
+  .btn-batch:hover { border-color: var(--accent); color: var(--accent); }
   .file-list { flex: 1; overflow-y: auto; }
   .file-list::-webkit-scrollbar { width: 3px; }
   .file-list::-webkit-scrollbar-thumb { background: var(--border2); }
   .file-item { padding: 10px 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; display: flex; align-items: flex-start; gap: 8px; }
   .file-item:hover { background: var(--surface2); }
   .file-item.active { background: rgba(0,153,255,0.06); border-left: 2px solid var(--accent2); }
-  .file-cb { width: 14px; height: 14px; accent-color: var(--accent); flex-shrink: 0; margin-top: 2px; cursor: pointer; }
+  .file-cb { width: 14px; height: 14px; accent-color: var(--accent); flex-shrink: 0; margin-top: 2px; }
   .file-info { flex: 1; min-width: 0; }
   .file-name { font-size: 11px; font-weight: 600; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .file-meta { font-size: 10px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; }
-  .fbadge { padding: 1px 6px; border-radius: 2px; font-size: 9px; font-weight: 600; letter-spacing: 0.05em; }
+  .fbadge { padding: 1px 6px; border-radius: 2px; font-size: 9px; font-weight: 600; }
   .fbadge-new { background: rgba(0,153,255,0.15); color: var(--accent2); }
   .fbadge-saved { background: rgba(0,204,102,0.15); color: var(--green); }
   .fbadge-done { background: rgba(255,140,0,0.15); color: var(--warn); }
   .sidebar-footer { padding: 8px 12px; border-top: 1px solid var(--border); font-size: 10px; color: var(--muted); }
-
-  /* MAIN */
   .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
-
-  /* TOOLBAR */
   .toolbar { height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 8px; flex-shrink: 0; }
-  .sel-name { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
-  .view-group { display: flex; gap: 2px; margin-left: 4px; }
-  .vbtn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; font-size: 10px; font-family: inherit; cursor: pointer; border-radius: 3px; transition: all 0.15s; }
+  .sel-name { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
+  .view-group { display: flex; gap: 2px; }
+  .vbtn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; font-size: 10px; font-family: inherit; cursor: pointer; border-radius: 3px; }
   .vbtn.on { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
   .spacer { flex: 1; }
-  .btn { padding: 6px 14px; border: none; border-radius: 4px; font-size: 11px; font-family: inherit; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em; }
+  .btn { padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-family: inherit; font-weight: 600; cursor: pointer; transition: all 0.15s; }
   .btn:disabled { opacity: 0.25; cursor: not-allowed; }
   .btn-db { background: rgba(136,85,255,0.2); color: var(--purple); border: 1px solid rgba(136,85,255,0.4); }
-  .btn-db:hover:not(:disabled) { background: rgba(136,85,255,0.35); }
   .btn-site { background: rgba(0,153,255,0.2); color: var(--accent2); border: 1px solid rgba(0,153,255,0.4); }
-  .btn-site:hover:not(:disabled) { background: rgba(0,153,255,0.35); }
   .btn-ai { background: rgba(255,140,0,0.2); color: var(--warn); border: 1px solid rgba(255,140,0,0.4); }
-  .btn-ai:hover:not(:disabled) { background: rgba(255,140,0,0.35); }
   .btn-done { background: rgba(0,204,102,0.2); color: var(--green); border: 1px solid rgba(0,204,102,0.4); }
-  .btn-done:hover:not(:disabled) { background: rgba(0,204,102,0.35); }
+  .btn-sql { background: rgba(0,212,170,0.15); color: var(--accent); border: 1px solid rgba(0,212,170,0.35); }
   .btn-del { background: rgba(255,51,85,0.2); color: var(--danger); border: 1px solid rgba(255,51,85,0.4); }
-  .btn-del:hover:not(:disabled) { background: rgba(255,51,85,0.35); }
-
-  /* CONTENT */
   .content { flex: 1; overflow-y: auto; padding: 16px; }
   .content::-webkit-scrollbar { width: 3px; }
   .content::-webkit-scrollbar-thumb { background: var(--border2); }
   .empty { text-align: center; padding: 80px 20px; color: var(--muted); }
   .empty h2 { font-family: 'Unbounded', sans-serif; font-size: 14px; margin-bottom: 8px; }
-
-  /* CARD VIEW */
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 12px; }
   .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
   .card-num { font-family: 'Unbounded', sans-serif; font-size: 13px; color: var(--accent); }
@@ -137,43 +85,27 @@
   .cf-val.big { font-size: 16px; font-weight: 700; color: var(--accent); }
   .cf-val.blue { color: var(--accent2); font-size: 15px; font-weight: 700; }
   .sec-title { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-
-  /* TABLE */
   .tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
-  .tbl th { background: var(--bg); padding: 8px 10px; text-align: left; font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+  .tbl th { background: var(--bg); padding: 8px 10px; text-align: left; font-size: 9px; color: var(--muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
   .tbl td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
   .tbl tr:hover td { background: var(--surface2); }
-  .tbl td.name { color: var(--accent2); font-weight: 600; }
-  .tbl td.price { color: var(--green); }
-  .tbl td.addr { color: var(--muted); font-size: 10px; }
-
-  /* JSON */
+  .tbl td.nm { color: var(--accent2); font-weight: 600; }
+  .tbl td.pr { color: var(--green); }
+  .tbl td.ad { color: var(--muted); font-size: 10px; }
   .json-view { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 14px; font-size: 11px; line-height: 1.7; white-space: pre-wrap; color: #7a9ab0; overflow-x: auto; }
-
-  /* LOG */
   .log-area { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; font-size: 10px; max-height: 90px; overflow-y: auto; margin-top: 12px; }
-  .log-area::-webkit-scrollbar { width: 2px; }
   .ll { padding: 1px 0; }
   .ll.ok { color: var(--green); }
   .ll.err { color: var(--danger); }
   .ll.info { color: var(--muted); }
-
-  /* ===== MODAL ===== */
-  .modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000;
-    display: none; align-items: center; justify-content: center;
-    backdrop-filter: blur(4px);
-  }
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
   .modal-overlay.open { display: flex; }
-  .modal {
-    background: var(--surface); border: 1px solid var(--border2); border-radius: 8px;
-    width: 860px; max-width: 95vw; max-height: 88vh; display: flex; flex-direction: column;
-    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
-  }
+  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; width: 860px; max-width: 95vw; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 24px 80px rgba(0,0,0,0.6); }
   .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
   .modal-title { font-family: 'Unbounded', sans-serif; font-size: 13px; color: var(--accent2); }
   .modal-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
-  .modal-close { margin-left: auto; background: transparent; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px; }
+  .modal-close { margin-left: auto; background: transparent; border: none; color: var(--muted); font-size: 18px; cursor: pointer; }
   .modal-close:hover { color: var(--danger); }
   .modal-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
   .modal-body::-webkit-scrollbar { width: 3px; }
@@ -181,20 +113,12 @@
   .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
   .modal-info { font-size: 10px; color: var(--muted); flex: 1; }
   .modal-info span { color: var(--accent); font-weight: 600; }
-
-  /* SUPPLIER CARDS IN MODAL */
-  .sup-card {
-    border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px;
-    margin-bottom: 8px; cursor: pointer; transition: all 0.15s; position: relative;
-  }
+  .sup-card { border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
   .sup-card:hover { border-color: var(--border2); background: var(--surface2); }
   .sup-card.selected { border-color: var(--accent2); background: rgba(0,153,255,0.05); }
+  .sup-check { width: 16px; height: 16px; border: 1.5px solid var(--border2); border-radius: 3px; flex-shrink: 0; position: relative; transition: all 0.15s; }
   .sup-card.selected .sup-check { background: var(--accent2); border-color: var(--accent2); }
   .sup-card.selected .sup-check::after { display: block; }
-  .sup-check {
-    width: 16px; height: 16px; border: 1.5px solid var(--border2); border-radius: 3px;
-    flex-shrink: 0; position: relative; transition: all 0.15s;
-  }
   .sup-check::after { content: '✓'; display: none; position: absolute; top: -2px; left: 1px; font-size: 12px; color: white; }
   .sup-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
   .sup-num { font-size: 9px; color: var(--muted); background: var(--bg); padding: 2px 6px; border-radius: 2px; }
@@ -206,17 +130,16 @@
   .sup-field input { background: transparent; border: none; color: var(--text); font-size: 11px; font-family: inherit; width: 100%; outline: none; }
   .sup-field input:focus { color: var(--accent); }
   .sup-addr { margin-top: 6px; background: var(--bg); padding: 6px 8px; border-radius: 3px; font-size: 10px; color: var(--muted); }
-
-  /* SELECT ALL */
   .sel-all-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-  .sel-all-row label { font-size: 11px; color: var(--text); cursor: pointer; }
+  .sel-all-row label { font-size: 11px; cursor: pointer; }
   .preview-box { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; margin-top: 10px; font-size: 10px; color: var(--muted); }
-  .preview-box .preview-title { color: var(--warn); font-weight: 600; margin-bottom: 6px; font-size: 11px; }
+  .preview-title { color: var(--warn); font-weight: 600; margin-bottom: 6px; font-size: 11px; }
   .preview-row { padding: 3px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
   .preview-row:last-child { border-bottom: none; }
-  .preview-row .pname { color: var(--text); flex: 1; }
-  .preview-row .pprice { color: var(--green); width: 80px; }
-  .preview-row .pqty { color: var(--accent2); width: 60px; }
+  .pname { color: var(--text); flex: 1; }
+  .pprice { color: var(--green); width: 80px; }
+  .pqty { color: var(--accent2); width: 60px; }
+  .sql-pre { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 14px; font-size: 10px; line-height: 1.8; overflow-x: auto; white-space: pre-wrap; color: #7a9ab0; max-height: 55vh; overflow-y: auto; }
 </style>
 </head>
 <body>
@@ -225,18 +148,15 @@
   <div class="logo">🌾 AGRO</div>
   <div class="live-dot"></div>
   <div class="live-text">LIVE</div>
-  <div class="api-key-wrap">
-    <span class="api-label">API KEY</span>
-    <input class="api-input" id="apiKey" type="password" value="agro_secret_2025">
-  </div>
+  <input class="api-input" id="apiKey" type="password" value="agro_secret_2025">
 </div>
 
 <div class="stats">
-  <div class="stat"><div class="stat-label">Всего файлов</div><div class="stat-val accent" id="sAll">—</div></div>
-  <div class="stat"><div class="stat-label">Новые</div><div class="stat-val blue" id="sNew">—</div></div>
-  <div class="stat"><div class="stat-label">В базе</div><div class="stat-val green" id="sSaved">—</div></div>
-  <div class="stat"><div class="stat-label">Обработано</div><div class="stat-val orange" id="sDone">—</div></div>
-  <div class="stat"><div class="stat-label">Выбрано</div><div class="stat-val" id="sSelected" style="color:var(--text)">0</div></div>
+  <div class="stat"><div class="stat-label">Всего</div><div class="stat-val" style="color:var(--accent)" id="sAll">—</div></div>
+  <div class="stat"><div class="stat-label">Новые</div><div class="stat-val" style="color:var(--accent2)" id="sNew">—</div></div>
+  <div class="stat"><div class="stat-label">В базе</div><div class="stat-val" style="color:var(--green)" id="sSaved">—</div></div>
+  <div class="stat"><div class="stat-label">Готово</div><div class="stat-val" style="color:var(--warn)" id="sDone">—</div></div>
+  <div class="stat"><div class="stat-label">Выбрано</div><div class="stat-val" id="sSel">0</div></div>
 </div>
 
 <div class="layout">
@@ -253,7 +173,6 @@
         <button class="btn-sm" onclick="loadFiles()">↻ обновить</button>
       </div>
     </div>
-
     <div class="drop-zone" id="dropZone" onclick="document.getElementById('fi').click()"
          ondragover="event.preventDefault();this.classList.add('drag')"
          ondragleave="this.classList.remove('drag')"
@@ -261,13 +180,11 @@
       <input type="file" id="fi" accept=".json,.jsn" multiple onchange="uploadFiles(this.files)">
       ⬆ загрузить файлы (drag & drop)
     </div>
-
     <div class="batch-bar">
       <span class="batch-label" id="batchLabel">выберите файлы</span>
       <button class="btn-batch" onclick="selectAll()">все</button>
       <button class="btn-batch" onclick="selectNone()">сброс</button>
     </div>
-
     <div class="file-list" id="fileList"></div>
     <div class="sidebar-footer" id="sfooter"></div>
   </div>
@@ -283,9 +200,9 @@
       <div class="spacer"></div>
       <button class="btn btn-db" id="btnDb" disabled onclick="saveToDb()">💾 в БД</button>
       <button class="btn btn-site" id="btnSite" disabled onclick="openSiteModal()">🌐 на сайт</button>
-      <button class="btn btn-ai" id="btnAi" disabled onclick="analyzeAi()">🤖 AI → бот</button>
+      <button class="btn btn-ai" id="btnAi" disabled onclick="analyzeAi()">🤖 AI</button>
+      <button class="btn btn-sql" id="btnSql" disabled onclick="exportSql()">{ } SQL</button>
       <button class="btn btn-done" id="btnDone" disabled onclick="markDone()">✓ готово</button>
-      <button class="btn" id="btnSql" disabled onclick="exportSql()" style="background:rgba(0,212,170,0.15);color:var(--accent);border:1px solid rgba(0,212,170,0.35)">{ } SQL</button>
       <button class="btn btn-del" id="btnDel" disabled onclick="deleteFile()">✕</button>
     </div>
     <div class="content" id="content">
@@ -294,148 +211,151 @@
   </div>
 </div>
 
-<!-- MODAL: SQL EXPORT -->
+<!-- SQL MODAL -->
 <div class="modal-overlay" id="sqlModal">
   <div class="modal" style="width:780px">
     <div class="modal-header">
       <div>
         <div class="modal-title">{ } SQL → products_sale</div>
-        <div class="modal-sub" id="sqlModalSub">готовый INSERT для phpMyAdmin</div>
+        <div class="modal-sub" id="sqlSub">готовый INSERT для phpMyAdmin</div>
       </div>
-      <button class="modal-close" onclick="document.getElementById('sqlModal').classList.remove('open')">✕</button>
+      <button class="modal-close" onclick="closeSqlModal()">✕</button>
     </div>
     <div class="modal-body">
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <button class="btn btn-done" onclick="copySql()">📋 копировать</button>
         <span style="font-size:10px;color:var(--green)" id="copyStatus"></span>
       </div>
-      <pre id="sqlText" style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:14px;font-size:10px;line-height:1.8;overflow-x:auto;white-space:pre-wrap;color:#7a9ab0;max-height:55vh;overflow-y:auto"></pre>
+      <pre class="sql-pre" id="sqlText"></pre>
     </div>
     <div class="modal-footer">
       <div class="modal-info">Вставь в phpMyAdmin → SQL → Вперёд</div>
-      <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted)" onclick="document.getElementById('sqlModal').classList.remove('open')">закрыть</button>
+      <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted)" onclick="closeSqlModal()">закрыть</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL: выбор поставщиков для отправки на сайт -->
-<div class="modal-overlay" id="modalOverlay">
+<!-- SITE MODAL -->
+<div class="modal-overlay" id="siteModal">
   <div class="modal">
     <div class="modal-header">
       <div>
         <div class="modal-title">🌐 ОТПРАВКА НА САЙТ</div>
-        <div class="modal-sub" id="modalSub">выберите поставщиков для публикации</div>
+        <div class="modal-sub" id="siteSub">выберите поставщиков</div>
       </div>
-      <button class="modal-close" onclick="closeModal()">✕</button>
+      <button class="modal-close" onclick="closeSiteModal()">✕</button>
     </div>
-    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-body" id="siteBody"></div>
     <div class="modal-footer">
-      <div class="modal-info">Выбрано: <span id="modalCount">0</span> поставщиков</div>
-      <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted)" onclick="closeModal()">отмена</button>
-      <button class="btn btn-site" id="btnSend" onclick="sendToSite()">🚀 отправить на сайт</button>
+      <div class="modal-info">Выбрано: <span id="siteCount">0</span> поставщиков</div>
+      <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted)" onclick="closeSiteModal()">отмена</button>
+      <button class="btn btn-site" onclick="sendToSite()">🚀 отправить</button>
     </div>
   </div>
 </div>
 
 <script>
-const SITE_WEBHOOK = 'https://ВАШ_САЙТ/webhook.php'; // ← заменить на реальный URL
-
+const WEBHOOK = 'https://russian-harvest.ru/webhook.php';
 let files = [], selected = null, curData = null, view = 'card';
 let checkedFiles = new Set();
-let modalSuppliers = [];
+let modalSups = [];
 
 const ak = () => document.getElementById('apiKey').value;
 
-// ---- UTILS ----
-function log(msg, type='info') {
+function log(msg, type) {
   const el = document.getElementById('logArea');
   if (!el) return;
   const d = document.createElement('div');
-  d.className = 'll ' + type;
-  d.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  d.className = 'll ' + (type||'info');
+  d.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
   el.appendChild(d);
   el.scrollTop = el.scrollHeight;
 }
 
 function statusBadge(s) {
-  const map = { new:'fbadge-new', saved:'fbadge-saved', done:'fbadge-done' };
-  const lab = { new:'новый', saved:'в бд', done:'готово' };
-  return `<span class="fbadge ${map[s]||'fbadge-new'}">${lab[s]||'новый'}</span>`;
+  const map = {new:'fbadge-new', saved:'fbadge-saved', done:'fbadge-done'};
+  const lab = {new:'новый', saved:'в бд', done:'готово'};
+  return '<span class="fbadge ' + (map[s]||'fbadge-new') + '">' + (lab[s]||'новый') + '</span>';
 }
 
 function setView(v) {
   view = v;
-  ['card','table','json'].forEach(x => document.getElementById('v'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('on', x===v));
+  ['card','table','json'].forEach(function(x) {
+    document.getElementById('v' + x.charAt(0).toUpperCase() + x.slice(1)).classList.toggle('on', x===v);
+  });
   if (curData) renderContent(curData);
 }
 
-// ---- LOAD FILES ----
+function updateStats() {
+  document.getElementById('sAll').textContent = files.length;
+  document.getElementById('sNew').textContent = files.filter(function(f){return f.status==='new';}).length;
+  document.getElementById('sSaved').textContent = files.filter(function(f){return f.status==='saved';}).length;
+  document.getElementById('sDone').textContent = files.filter(function(f){return f.status==='done';}).length;
+  document.getElementById('sSel').textContent = checkedFiles.size;
+}
+
 async function loadFiles() {
   try {
-    const r = await fetch('/files', { headers: {'x-api-key': ak()} });
+    const r = await fetch('/files', {headers: {'x-api-key': ak()}});
     files = await r.json();
     updateStats();
     renderList();
   } catch(e) { console.error(e); }
 }
 
-function updateStats() {
-  document.getElementById('sAll').textContent = files.length;
-  document.getElementById('sNew').textContent = files.filter(f=>f.status==='new').length;
-  document.getElementById('sSaved').textContent = files.filter(f=>f.status==='saved').length;
-  document.getElementById('sDone').textContent = files.filter(f=>f.status==='done').length;
-  document.getElementById('sSelected').textContent = checkedFiles.size;
-}
-
 function renderList() {
   const srch = document.getElementById('srch').value.toLowerCase();
   const fs = document.getElementById('fStatus').value;
-  const filtered = files.filter(f =>
-    f.name.toLowerCase().includes(srch) && (!fs || f.status === fs)
-  );
-  document.getElementById('sfooter').textContent = `${filtered.length} / ${files.length} файлов`;
-  document.getElementById('batchLabel').textContent = checkedFiles.size ? `выбрано: ${checkedFiles.size}` : 'выберите файлы';
+  const filtered = files.filter(function(f) {
+    return f.name.toLowerCase().includes(srch) && (!fs || f.status === fs);
+  });
+  document.getElementById('sfooter').textContent = filtered.length + ' / ' + files.length + ' файлов';
+  document.getElementById('batchLabel').textContent = checkedFiles.size ? 'выбрано: ' + checkedFiles.size : 'выберите файлы';
   updateStats();
-
   if (!filtered.length) {
     document.getElementById('fileList').innerHTML = '<div style="padding:20px;text-align:center;font-size:10px;color:var(--muted)">нет файлов</div>';
     return;
   }
-  document.getElementById('fileList').innerHTML = filtered.map(f => {
-    const shortName = f.name.replace(/^\d{8}_\d{6}_/, '');
-    return `<div class="file-item ${selected===f.name?'active':''}" onclick="selectFile('${f.name}')">
-      <input type="checkbox" class="file-cb" ${checkedFiles.has(f.name)?'checked':''} 
-        onclick="event.stopPropagation();toggleCheck('${f.name}',this.checked)">
-      <div class="file-info">
-        <div class="file-name">${shortName}</div>
-        <div class="file-meta">
-          <span>${f.created}</span>
-          <span>${(f.size/1024).toFixed(1)}kb</span>
-          ${statusBadge(f.status)}
-        </div>
-      </div>
-    </div>`;
+  document.getElementById('fileList').innerHTML = filtered.map(function(f) {
+    const short = f.name.replace(/^\d{8}_\d{6}_/, '');
+    const cb = checkedFiles.has(f.name) ? 'checked' : '';
+    return '<div class="file-item ' + (selected===f.name?'active':'') + '" onclick="selectFile(\'' + f.name.replace(/'/g,"\\'") + '\')">' +
+      '<input type="checkbox" class="file-cb" ' + cb + ' onclick="event.stopPropagation();toggleCheck(\'' + f.name.replace(/'/g,"\\'") + '\',this.checked)">' +
+      '<div class="file-info">' +
+        '<div class="file-name">' + short + '</div>' +
+        '<div class="file-meta"><span>' + f.created + '</span><span>' + (f.size/1024).toFixed(1) + 'kb</span>' + statusBadge(f.status) + '</div>' +
+      '</div></div>';
   }).join('');
 }
 
 function toggleCheck(name, checked) {
   checked ? checkedFiles.add(name) : checkedFiles.delete(name);
   updateStats();
-  document.getElementById('batchLabel').textContent = checkedFiles.size ? `выбрано: ${checkedFiles.size}` : 'выберите файлы';
+  document.getElementById('batchLabel').textContent = checkedFiles.size ? 'выбрано: ' + checkedFiles.size : 'выберите файлы';
 }
 
-function selectAll() { files.forEach(f => checkedFiles.add(f.name)); renderList(); }
+function selectAll() { files.forEach(function(f){checkedFiles.add(f.name);}); renderList(); }
 function selectNone() { checkedFiles.clear(); renderList(); }
 
-// ---- SELECT FILE ----
+function enableBtns() {
+  ['btnDb','btnSite','btnAi','btnSql','btnDone','btnDel'].forEach(function(id){
+    document.getElementById(id).disabled = false;
+  });
+}
+function disableBtns() {
+  ['btnDb','btnSite','btnAi','btnSql','btnDone','btnDel'].forEach(function(id){
+    document.getElementById(id).disabled = true;
+  });
+}
+
 async function selectFile(name) {
   selected = name;
   renderList();
-  ['btnDb','btnSite','btnAi','btnDone','btnSql','btnDel'].forEach(id => document.getElementById(id).disabled = false);
+  enableBtns();
   document.getElementById('selName').textContent = name.replace(/^\d{8}_\d{6}_/, '');
   document.getElementById('content').innerHTML = '<div class="empty"><p>загрузка...</p></div>';
   try {
-    const r = await fetch(`/files/${name}`, { headers: {'x-api-key': ak()} });
+    const r = await fetch('/files/' + encodeURIComponent(name), {headers: {'x-api-key': ak()}});
     curData = await r.json();
     renderContent(curData);
   } catch(e) {
@@ -443,84 +363,58 @@ async function selectFile(name) {
   }
 }
 
-// ---- RENDER CONTENT ----
 function renderContent(data) {
-  const fi = files.find(f => f.name === selected) || {};
+  const fi = files.find(function(f){return f.name===selected;}) || {};
   if (view === 'json') {
-    document.getElementById('content').innerHTML = `<div class="json-view">${JSON.stringify(data, null, 2)}</div><div class="log-area" id="logArea"></div>`;
+    document.getElementById('content').innerHTML = '<div class="json-view">' + JSON.stringify(data, null, 2) + '</div><div class="log-area" id="logArea"></div>';
     return;
   }
+  const sups = data['Закупка'] || [];
   if (view === 'table') {
-    const sups = data.Закупка || [];
-    document.getElementById('content').innerHTML = `
-      <table class="tbl">
-        <thead><tr><th>#</th><th>Контрагент</th><th>Адрес загрузки</th><th>Показатели</th><th>Цена</th><th>Объём</th><th>ФИО</th></tr></thead>
-        <tbody>${sups.map(s=>`<tr>
-          <td style="color:var(--muted)">${s.НомерСтроки}</td>
-          <td class="name">${s.Контрагент}</td>
-          <td class="addr">${s.АдресЗагрузки}</td>
-          <td>${s.КачественныеПоказатели}</td>
-          <td class="price">${s.Цена}</td>
-          <td>${s.Объем}</td>
-          <td style="font-size:10px;color:var(--muted)">${s.ФИО}</td>
-        </tr>`).join('')}</tbody>
-      </table>
-      <div class="log-area" id="logArea"></div>`;
+    document.getElementById('content').innerHTML =
+      '<table class="tbl"><thead><tr><th>#</th><th>Контрагент</th><th>Адрес</th><th>Показатели</th><th>Цена</th><th>Объём</th><th>ФИО</th></tr></thead><tbody>' +
+      sups.map(function(s){return '<tr><td style="color:var(--muted)">' + s['НомерСтроки'] + '</td><td class="nm">' + s['Контрагент'] + '</td><td class="ad">' + s['АдресЗагрузки'] + '</td><td>' + s['КачественныеПоказатели'] + '</td><td class="pr">' + s['Цена'] + '</td><td>' + s['Объем'] + '</td><td style="font-size:10px;color:var(--muted)">' + s['ФИО'] + '</td></tr>';}).join('') +
+      '</tbody></table><div class="log-area" id="logArea"></div>';
     return;
   }
-  // CARD
-  const sups = data.Закупка || [];
-  document.getElementById('content').innerHTML = `
-    <div class="card">
-      <div class="card-header">
-        <div class="card-num">№ ${data.Номер}</div>
-        ${statusBadge(fi.status)}
-      </div>
-      <div class="card-grid">
-        <div class="cf"><div class="cf-label">Дата</div><div class="cf-val">${data.Дата||'—'}</div></div>
-        <div class="cf"><div class="cf-label">Статус</div><div class="cf-val">${data.Статус||'—'}</div></div>
-        <div class="cf"><div class="cf-label">Тип сделки</div><div class="cf-val">${data['Тип сделки']||'—'}</div></div>
-        <div class="cf"><div class="cf-label">Номенклатура</div><div class="cf-val">${data.Номенклатура||'—'}</div></div>
-        <div class="cf"><div class="cf-label">Покупатель</div><div class="cf-val">${data.Покупатель||'—'}</div></div>
-        <div class="cf"><div class="cf-label">Источник</div><div class="cf-val">${data['Источник маржинальности']||'—'}</div></div>
-        <div class="cf"><div class="cf-label">Объём</div><div class="cf-val big">${data['Объём']||'—'}</div></div>
-        <div class="cf"><div class="cf-label">Сумма</div><div class="cf-val blue">${data.Сумма||'—'}</div></div>
-        <div class="cf"><div class="cf-label">Осталось</div><div class="cf-val">${data.Осталось||'—'}</div></div>
-      </div>
-      <div class="cf" style="margin-bottom:14px"><div class="cf-label">Адрес выгрузки</div><div class="cf-val" style="font-size:11px">${data['Адрес выгрузки']||'—'}</div></div>
-      <div class="sec-title">ПОСТАВЩИКИ — ${sups.length}</div>
-      <table class="tbl">
-        <thead><tr><th>#</th><th>Контрагент</th><th>Адрес загрузки</th><th>Показатели</th><th>Цена</th><th>Объём</th><th>ФИО</th></tr></thead>
-        <tbody>${sups.map(s=>`<tr>
-          <td style="color:var(--muted)">${s.НомерСтроки}</td>
-          <td class="name">${s.Контрагент}</td>
-          <td class="addr">${s.АдресЗагрузки}</td>
-          <td>${s.КачественныеПоказатели}</td>
-          <td class="price">${s.Цена}</td>
-          <td>${s.Объем}</td>
-          <td style="font-size:10px;color:var(--muted)">${s.ФИО}</td>
-        </tr>`).join('')}</tbody>
-      </table>
-    </div>
-    <div class="log-area" id="logArea"><div class="ll info">[открыт] ${(selected||'').replace(/^\d{8}_\d{6}_/,'')}</div></div>`;
+  document.getElementById('content').innerHTML =
+    '<div class="card">' +
+      '<div class="card-header"><div class="card-num">№ ' + (data['Номер']||'') + '</div>' + statusBadge(fi.status) + '</div>' +
+      '<div class="card-grid">' +
+        '<div class="cf"><div class="cf-label">Дата</div><div class="cf-val">' + (data['Дата']||'—') + '</div></div>' +
+        '<div class="cf"><div class="cf-label">Статус</div><div class="cf-val">' + (data['Статус']||'—') + '</div></div>' +
+        '<div class="cf"><div class="cf-label">Тип сделки</div><div class="cf-val">' + (data['Тип сделки']||'—') + '</div></div>' +
+        '<div class="cf"><div class="cf-label">Номенклатура</div><div class="cf-val">' + (data['Номенклатура']||'—') + '</div></div>' +
+        '<div class="cf"><div class="cf-label">Покупатель</div><div class="cf-val">' + (data['Покупатель']||'—') + '</div></div>' +
+        '<div class="cf"><div class="cf-label">Источник</div><div class="cf-val">' + (data['Источник маржинальности']||'—') + '</div></div>' +
+        '<div class="cf"><div class="cf-label">Объём</div><div class="cf-val big">' + (data['Объём']||'—') + '</div></div>' +
+        '<div class="cf"><div class="cf-label">Сумма</div><div class="cf-val blue">' + (data['Сумма']||'—') + '</div></div>' +
+        '<div class="cf"><div class="cf-label">Осталось</div><div class="cf-val">' + (data['Осталось']||'—') + '</div></div>' +
+      '</div>' +
+      '<div class="cf" style="margin-bottom:14px"><div class="cf-label">Адрес выгрузки</div><div class="cf-val" style="font-size:11px">' + (data['Адрес выгрузки']||'—') + '</div></div>' +
+      '<div class="sec-title">ПОСТАВЩИКИ — ' + sups.length + '</div>' +
+      '<table class="tbl"><thead><tr><th>#</th><th>Контрагент</th><th>Адрес загрузки</th><th>Показатели</th><th>Цена</th><th>Объём</th><th>ФИО</th></tr></thead><tbody>' +
+      sups.map(function(s){return '<tr><td style="color:var(--muted)">' + s['НомерСтроки'] + '</td><td class="nm">' + s['Контрагент'] + '</td><td class="ad">' + s['АдресЗагрузки'] + '</td><td>' + s['КачественныеПоказатели'] + '</td><td class="pr">' + s['Цена'] + '</td><td>' + s['Объем'] + '</td><td style="font-size:10px;color:var(--muted)">' + s['ФИО'] + '</td></tr>';}).join('') +
+      '</tbody></table>' +
+    '</div>' +
+    '<div class="log-area" id="logArea"><div class="ll info">[открыт] ' + (selected||'').replace(/^\d{8}_\d{6}_/,'') + '</div></div>';
 }
 
-// ---- UPLOAD ----
 async function uploadFiles(fileList) {
   const dz = document.getElementById('dropZone');
-  dz.textContent = `⏳ загружаю ${fileList.length} файл(ов)...`;
+  dz.textContent = 'загружаю ' + fileList.length + ' файл(ов)...';
   let ok = 0;
-  for (const file of fileList) {
+  for (let i = 0; i < fileList.length; i++) {
     const fd = new FormData();
-    fd.append('file', file);
+    fd.append('file', fileList[i]);
     try {
-      const r = await fetch('/upload', { method: 'POST', headers: {'x-api-key': ak()}, body: fd });
+      const r = await fetch('/upload', {method:'POST', headers:{'x-api-key':ak()}, body:fd});
       const d = await r.json();
       if (d.status === 'ok') ok++;
     } catch(e) {}
   }
-  dz.textContent = `✅ загружено ${ok}/${fileList.length}`;
-  setTimeout(() => { dz.textContent = '⬆ загрузить файлы (drag & drop)'; }, 2500);
+  dz.textContent = '✅ загружено ' + ok + '/' + fileList.length;
+  setTimeout(function(){ dz.textContent = '⬆ загрузить файлы (drag & drop)'; }, 2500);
   document.getElementById('fi').value = '';
   loadFiles();
 }
@@ -531,209 +425,135 @@ function handleDrop(e) {
   uploadFiles(e.dataTransfer.files);
 }
 
-// ---- SAVE TO DB ----
 async function saveToDb() {
   if (!selected) return;
   log('сохранение в БД...', 'info');
   try {
-    const r = await fetch(`/save-to-db/${selected}`, { method: 'POST', headers: {'x-api-key': ak()} });
+    const r = await fetch('/save-to-db/' + encodeURIComponent(selected), {method:'POST', headers:{'x-api-key':ak()}});
     const d = await r.json();
-    if (d.status === 'ok') { log(`✅ сохранено. поставщиков: ${d.suppliers}`, 'ok'); loadFiles(); }
-    else if (d.status === 'skipped') log(`⚠️ ${d.reason}`, 'err');
-    else log(`❌ ${JSON.stringify(d)}`, 'err');
-  } catch(e) { log(`❌ ${e}`, 'err'); }
+    if (d.status === 'ok') { log('✅ сохранено. поставщиков: ' + d.suppliers, 'ok'); loadFiles(); }
+    else if (d.status === 'skipped') log('⚠️ ' + d.reason, 'err');
+    else log('❌ ' + JSON.stringify(d), 'err');
+  } catch(e) { log('❌ ' + e, 'err'); }
 }
 
-// ---- MODAL: САЙТ ----
+// SQL EXPORT
+function cleanNum(s) { return parseInt(String(s).replace(/[^0-9]/g,'')) || 0; }
+function esc(s) { return String(s||'').replace(/'/g,"''"); }
+
+function exportSql() {
+  if (!curData) return;
+  const nom = curData['Номенклатура'] || '';
+  const date = curData['Дата'] || '';
+  const buyer = curData['Покупатель'] || '';
+  const number = curData['Номер'] || '';
+  const delivery = curData['Адрес выгрузки'] || '';
+  const sups = curData['Закупка'] || [];
+  const year = new Date().getFullYear();
+  const lines = sups.map(function(s) {
+    const price = cleanNum(s['Цена']);
+    const qty = cleanNum(s['Объем']);
+    const mesto = esc(s['АдресЗагрузки'] || '');
+    const quality = esc(s['КачественныеПоказатели'] || '');
+    const fio = esc(s['ФИО'] || '');
+    const kontragent = esc(s['Контрагент'] || '');
+    const name = esc(nom);
+    const msg = esc('№' + number + ' | ' + buyer + ' | ' + delivery + ' | ' + quality + ' | ' + fio);
+    return "INSERT INTO `products_sale` (`user_id`,`name`,`date`,`price`,`mesto`,`type`,`year`,`country`,`quantity`,`declar`,`protein`,`primes`,`kley`,`cislo`,`belok`,`vlaga`,`zerno`,`steklo`,`natura`,`msg`,`clas`,`zaraza`,`photo1`,`photo2`,`photo3`,`photo4`,`set1`,`set2`,`set3`,`set4`,`set5`,`set6`,`m1`,`m2`,`m3`,`m4`) VALUES (40,'" + name + "','" + date + "'," + price + ",'" + mesto + "','С НДС'," + year + ",'Россия'," + qty + ",'','" + quality + "','','','','','','','','','" + msg + "','','','','','','','Самовывоз','Предоплата','','','','','" + kontragent + "','" + fio + "','','');";
+  });
+  const sql = '-- Агро импорт: №' + number + ' (' + nom + ')\n-- Покупатель: ' + buyer + '\n-- Дата: ' + date + '\n-- Поставщиков: ' + sups.length + '\n\n' + lines.join('\n\n');
+  document.getElementById('sqlText').textContent = sql;
+  document.getElementById('sqlSub').textContent = '№' + number + ' · ' + nom + ' · ' + sups.length + ' поставщиков';
+  document.getElementById('sqlModal').classList.add('open');
+}
+
+async function copySql() {
+  await navigator.clipboard.writeText(document.getElementById('sqlText').textContent);
+  const s = document.getElementById('copyStatus');
+  s.textContent = '✅ скопировано!';
+  setTimeout(function(){ s.textContent = ''; }, 2000);
+}
+
+function closeSqlModal() { document.getElementById('sqlModal').classList.remove('open'); }
+
+// SITE MODAL
 function openSiteModal() {
   if (!curData) return;
-  const sups = curData.Закупка || [];
-  modalSuppliers = sups.map((s, i) => ({ ...s, _selected: true, _price: s.Цена, _qty: s.Объем, _idx: i }));
-
-  document.getElementById('modalSub').textContent = `№${curData.Номер} · ${curData.Номенклатура} · ${curData.Покупатель}`;
-  renderModal();
-  document.getElementById('modalOverlay').classList.add('open');
+  const sups = curData['Закупка'] || [];
+  modalSups = sups.map(function(s,i){ return Object.assign({}, s, {_sel:true, _price:s['Цена'], _qty:s['Объем'], _idx:i}); });
+  document.getElementById('siteSub').textContent = '№' + (curData['Номер']||'') + ' · ' + (curData['Номенклатура']||'') + ' · ' + (curData['Покупатель']||'');
+  renderSiteModal();
+  document.getElementById('siteModal').classList.add('open');
 }
 
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
+function closeSiteModal() { document.getElementById('siteModal').classList.remove('open'); }
+
+function renderSiteModal() {
+  const count = modalSups.filter(function(s){return s._sel;}).length;
+  document.getElementById('siteCount').textContent = count;
+  const selAll = modalSups.every(function(s){return s._sel;});
+  let html = '<div class="sel-all-row"><input type="checkbox" id="cbAll" ' + (selAll?'checked':'') + ' onchange="toggleAllSups(this.checked)" style="accent-color:var(--accent);width:14px;height:14px"><label for="cbAll">выбрать всех (' + modalSups.length + ')</label></div>';
+  modalSups.forEach(function(s,i) {
+    html += '<div class="sup-card ' + (s._sel?'selected':'') + '" id="sc'+i+'" onclick="toggleSup('+i+')">' +
+      '<div class="sup-top"><div class="sup-check" id="ck'+i+'"></div><div class="sup-num">#'+s['НомерСтроки']+'</div><div class="sup-name">'+s['Контрагент']+'</div><div class="sup-fio">'+s['ФИО']+'</div></div>' +
+      '<div class="sup-grid">' +
+        '<div class="sup-field"><div class="sup-field-label">ЦЕНА</div><input id="p'+i+'" value="'+s._price+'" onclick="event.stopPropagation()" oninput="modalSups['+i+']._price=this.value;renderPreview()"></div>' +
+        '<div class="sup-field"><div class="sup-field-label">ОБЪЁМ</div><input id="q'+i+'" value="'+s._qty+'" onclick="event.stopPropagation()" oninput="modalSups['+i+']._qty=this.value;renderPreview()"></div>' +
+        '<div class="sup-field"><div class="sup-field-label">ПОКАЗАТЕЛИ</div><input value="'+s['КачественныеПоказатели']+'" onclick="event.stopPropagation()" oninput="modalSups['+i+']['+"'КачественныеПоказатели'"+'].value=this.value"></div>' +
+      '</div>' +
+      '<div class="sup-addr">📍 '+s['АдресЗагрузки']+'</div>' +
+    '</div>';
+  });
+  html += '<div class="preview-box" id="previewBox"></div>';
+  document.getElementById('siteBody').innerHTML = html;
+  renderPreview();
 }
 
-function renderModal() {
-  const count = modalSuppliers.filter(s => s._selected).length;
-  document.getElementById('modalCount').textContent = count;
-
-  const selAll = modalSuppliers.every(s => s._selected);
-  document.getElementById('modalBody').innerHTML = `
-    <div class="sel-all-row">
-      <input type="checkbox" id="cbAll" ${selAll?'checked':''} onchange="toggleAll(this.checked)" style="accent-color:var(--accent);width:14px;height:14px">
-      <label for="cbAll">выбрать всех поставщиков (${modalSuppliers.length})</label>
-    </div>
-    ${modalSuppliers.map((s,i) => `
-      <div class="sup-card ${s._selected?'selected':''}" id="sc${i}" onclick="toggleSupplier(${i})">
-        <div class="sup-top">
-          <div class="sup-check" id="ck${i}"></div>
-          <div class="sup-num">#${s.НомерСтроки}</div>
-          <div class="sup-name">${s.Контрагент}</div>
-          <div class="sup-fio">${s.ФИО}</div>
-        </div>
-        <div class="sup-grid">
-          <div class="sup-field">
-            <div class="sup-field-label">ЦЕНА (руб/т)</div>
-            <input id="price${i}" value="${s.Цена}" onclick="event.stopPropagation()" oninput="updateField(${i},'_price',this.value)">
-          </div>
-          <div class="sup-field">
-            <div class="sup-field-label">ОБЪЁМ (т)</div>
-            <input id="qty${i}" value="${s.Объем}" onclick="event.stopPropagation()" oninput="updateField(${i},'_qty',this.value)">
-          </div>
-          <div class="sup-field">
-            <div class="sup-field-label">ПОКАЗАТЕЛИ</div>
-            <input value="${s.КачественныеПоказатели}" onclick="event.stopPropagation()" oninput="updateField(${i},'КачественныеПоказатели',this.value)">
-          </div>
-        </div>
-        <div class="sup-addr">📍 ${s.АдресЗагрузки}</div>
-      </div>
-    `).join('')}
-    <div class="preview-box">
-      <div class="preview-title">👁 ПРЕДПРОСМОТР — что уйдёт на сайт</div>
-      ${modalSuppliers.filter(s=>s._selected).map(s=>`
-        <div class="preview-row">
-          <span class="pname">${curData.Номенклатура} · ${s.Контрагент}</span>
-          <span class="pprice">${s._price} руб</span>
-          <span class="pqty">${s._qty} т</span>
-        </div>
-      `).join('') || '<div style="color:var(--muted);font-size:10px;padding:4px 0">нет выбранных поставщиков</div>'}
-    </div>`;
+function renderPreview() {
+  const sel = modalSups.filter(function(s){return s._sel;});
+  document.getElementById('siteCount').textContent = sel.length;
+  const pb = document.getElementById('previewBox');
+  if (!pb) return;
+  if (!sel.length) { pb.innerHTML = '<div class="preview-title">👁 ПРЕДПРОСМОТР</div><div style="color:var(--muted);font-size:10px">нет выбранных</div>'; return; }
+  pb.innerHTML = '<div class="preview-title">👁 ПРЕДПРОСМОТР — уйдёт на сайт</div>' +
+    sel.map(function(s){ return '<div class="preview-row"><span class="pname">' + (curData['Номенклатура']||'') + ' · ' + s['Контрагент'] + '</span><span class="pprice">' + s._price + '</span><span class="pqty">' + s._qty + '</span></div>'; }).join('');
 }
 
-function toggleSupplier(i) {
-  modalSuppliers[i]._selected = !modalSuppliers[i]._selected;
-  renderModal();
-}
-
-function toggleAll(checked) {
-  modalSuppliers.forEach(s => s._selected = checked);
-  renderModal();
-}
-
-function updateField(i, field, val) {
-  modalSuppliers[i][field] = val;
-  // обновить предпросмотр
-  setTimeout(() => {
-    const preview = document.querySelector('.preview-box');
-    if (preview) {
-      preview.querySelector('.preview-title') && renderModal();
-    }
-  }, 300);
-}
+function toggleSup(i) { modalSups[i]._sel = !modalSups[i]._sel; renderSiteModal(); }
+function toggleAllSups(v) { modalSups.forEach(function(s){s._sel=v;}); renderSiteModal(); }
 
 async function sendToSite() {
-  const toSend = modalSuppliers.filter(s => s._selected);
-  if (!toSend.length) { alert('Выберите хотя бы одного поставщика'); return; }
-
-  document.getElementById('btnSend').textContent = '⏳ отправляю...';
-  document.getElementById('btnSend').disabled = true;
-
-  const payload = {
-    ...curData,
-    Закупка: toSend.map(s => ({
-      ...s,
-      Цена: s._price,
-      Объем: s._qty,
-    }))
-  };
-
+  const toSend = modalSups.filter(function(s){return s._sel;});
+  if (!toSend.length) { alert('Выберите поставщиков'); return; }
+  const payload = Object.assign({}, curData, {Закупка: toSend.map(function(s){ return Object.assign({}, s, {Цена:s._price, Объем:s._qty}); })});
   try {
-    const r = await fetch(SITE_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Api-Key': 'agro_webhook_2025' },
-      body: JSON.stringify(payload)
-    });
+    const r = await fetch(WEBHOOK, {method:'POST', headers:{'Content-Type':'application/json','X-Api-Key':'agro_webhook_2025'}, body:JSON.stringify(payload)});
     const d = await r.json();
-    closeModal();
-    if (d.status === 'ok') {
-      log(`✅ на сайт отправлено ${d.inserted} позиций`, 'ok');
-    } else {
-      log(`❌ ошибка: ${JSON.stringify(d)}`, 'err');
-    }
-  } catch(e) {
-    log(`❌ ${e}`, 'err');
-    closeModal();
-  }
-
-  document.getElementById('btnSend').textContent = '🚀 отправить на сайт';
-  document.getElementById('btnSend').disabled = false;
+    closeSiteModal();
+    log(d.status==='ok' ? '✅ на сайт: ' + d.inserted + ' позиций' : '❌ ' + JSON.stringify(d), d.status==='ok'?'ok':'err');
+  } catch(e) { log('❌ ' + e, 'err'); closeSiteModal(); }
 }
 
-// ---- MARK DONE ----
 async function markDone() {
   if (!selected) return;
-  const r = await fetch(`/mark-done/${selected}`, { method: 'POST', headers: {'x-api-key': ak()} });
+  const r = await fetch('/mark-done/' + encodeURIComponent(selected), {method:'POST', headers:{'x-api-key':ak()}});
   const d = await r.json();
-  if (d.status === 'ok') { log('✅ помечено как обработано', 'ok'); loadFiles(); }
+  if (d.status==='ok') { log('✅ обработан', 'ok'); loadFiles(); }
 }
 
-// ---- DELETE ----
 async function deleteFile() {
-  if (!selected || !confirm(`удалить файл?`)) return;
-  await fetch(`/files/${selected}`, { method: 'DELETE', headers: {'x-api-key': ak()} });
-  log(`удалён: ${selected}`, 'ok');
+  if (!selected || !confirm('удалить файл?')) return;
+  await fetch('/files/' + encodeURIComponent(selected), {method:'DELETE', headers:{'x-api-key':ak()}});
+  log('удалён: ' + selected, 'ok');
   selected = null; curData = null;
-  ['btnDb','btnSite','btnAi','btnDone','btnSql','btnDel'].forEach(id => document.getElementById(id).disabled = true);
+  disableBtns();
   document.getElementById('selName').textContent = 'выберите файл';
   document.getElementById('content').innerHTML = '<div class="empty"><h2>AGRO ADMIN</h2></div>';
   loadFiles();
 }
 
-async function analyzeAi() { log('⚠️ AI анализ — будет подключён позже', 'err'); }
+function analyzeAi() { log('⚠️ AI — будет подключён позже', 'err'); }
 
-function esc(s) { return String(s||"").replace(/'/g,"\x27").replace(/\\/g,"\\\\"); }
-
-function cleanNum(s) { return parseInt(String(s).replace(/[^0-9]/g,"")) || 0; }
-
-function exportSql() {
-  if (!curData) return;
-  const fi = files.find(f => f.name === selected) || {};
-  const nom = curData["Номенклатура"] || "";
-  const date = curData["Дата"] || "";
-  const buyer = curData["Покупатель"] || "";
-  const number = curData["Номер"] || "";
-  const delivery = curData["Адрес выгрузки"] || "";
-  const sups = curData["Закупка"] || [];
-  const year = new Date().getFullYear();
-  const lines = sups.map(s => {
-    const price = cleanNum(s["Цена"]);
-    const qty = cleanNum(s["Объем"]);
-    const mesto = esc(s["АдресЗагрузки"] || "");
-    const quality = esc(s["КачественныеПоказатели"] || "");
-    const fio = esc(s["ФИО"] || "");
-    const kontragent = esc(s["Контрагент"] || "");
-    const name = esc(nom);
-    const msg = esc(`№${number} | ${buyer} | ${delivery} | ${quality} | ${fio}`);
-    return `INSERT INTO `products_sale` (`user_id`,`name`,`date`,`price`,`mesto`,`type`,`year`,`country`,`quantity`,`declar`,`protein`,`primes`,`kley`,`cislo`,`belok`,`vlaga`,`zerno`,`steklo`,`natura`,`msg`,`clas`,`zaraza`,`photo1`,`photo2`,`photo3`,`photo4`,`set1`,`set2`,`set3`,`set4`,`set5`,`set6`,`m1`,`m2`,`m3`,`m4`) VALUES (40,'${name}','${date}',${price},'${mesto}','С НДС',${year},'Россия',${qty},'','${quality}','','','','','','','','','${msg}','','','','','','','Самовывоз','Предоплата','','','','','${kontragent}','${fio}','','');`;
-  });
-  const sql = `-- Агро импорт: №${number} (${nom})
--- Покупатель: ${buyer}
--- Дата: ${date}
--- Поставщиков: ${sups.length}
-
-` + lines.join("
-
-");
-  document.getElementById("sqlText").textContent = sql;
-  document.getElementById("sqlModalSub").textContent = `№${number} · ${nom} · ${sups.length} поставщиков`;
-  document.getElementById("sqlModal").classList.add("open");
-}
-
-async function copySql() {
-  const text = document.getElementById("sqlText").textContent;
-  await navigator.clipboard.writeText(text);
-  const s = document.getElementById("copyStatus");
-  s.textContent = "✅ скопировано!";
-  setTimeout(() => s.textContent = "", 2000);
-}
-
-// ---- INIT ----
 loadFiles();
 setInterval(loadFiles, 30000);
 </script>
