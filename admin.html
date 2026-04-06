@@ -3,234 +3,366 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agro Admin</title>
+<title>Русский Урожай — Админ панель</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@400;600;700&display=swap');
   :root {
-    --bg: #080c0f; --surface: #0e1418; --surface2: #141c22; --border: #1e2a32; --border2: #243040;
-    --text: #d4e4f0; --muted: #4a6070; --accent: #00d4aa; --accent2: #0099ff;
-    --warn: #ff8c00; --danger: #ff3355; --purple: #8855ff; --green: #00cc66;
+    --green: #5a9e2f;
+    --green-light: #7bc142;
+    --green-dark: #3d7a1a;
+    --green-bg: #f0f7e8;
+    --orange: #f5a623;
+    --orange-light: #fff3dc;
+    --red: #e74c3c;
+    --red-light: #fdf0ee;
+    --blue: #2980b9;
+    --blue-light: #eaf4fb;
+    --purple: #8e44ad;
+    --purple-light: #f5eefb;
+    --gray: #6b7280;
+    --gray-light: #f5f6f7;
+    --gray-border: #e2e6ea;
+    --white: #ffffff;
+    --text: #1a2332;
+    --text-muted: #8492a6;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --shadow-hover: 0 4px 20px rgba(0,0,0,0.12);
+    --radius: 10px;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
-  .header { height: 52px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 20px; gap: 16px; }
-  .logo { font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); }
-  .live-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-  .live-text { font-size: 10px; color: var(--green); letter-spacing: 0.1em; }
-  .api-input { margin-left: auto; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-family: inherit; width: 200px; }
-  .stats { height: 56px; background: var(--surface); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); }
-  .stat { display: flex; flex-direction: column; justify-content: center; padding: 0 16px; border-right: 1px solid var(--border); }
+  body { font-family: 'Inter', sans-serif; background: #f0f2f5; color: var(--text); height: 100vh; overflow: hidden; }
+
+  /* HEADER */
+  .header {
+    height: 60px; background: var(--white); border-bottom: 2px solid var(--green);
+    display: flex; align-items: center; padding: 0 24px; gap: 16px;
+    box-shadow: 0 2px 8px rgba(90,158,47,0.1);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 36px; height: 36px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .logo-text { font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
+  .logo-sub { font-size: 10px; color: var(--text-muted); font-weight: 400; }
+  .header-divider { width: 1px; height: 30px; background: var(--gray-border); }
+  .header-title { font-size: 13px; font-weight: 600; color: var(--gray); }
+  .live-badge { display: flex; align-items: center; gap: 6px; background: var(--green-bg); border: 1px solid var(--green-light); padding: 4px 10px; border-radius: 20px; }
+  .live-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.6;transform:scale(0.8)} }
+  .live-text { font-size: 11px; font-weight: 600; color: var(--green-dark); }
+  .header-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+  .api-wrap { display: flex; align-items: center; gap: 8px; }
+  .api-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .api-input { background: var(--gray-light); border: 1px solid var(--gray-border); color: var(--text); padding: 6px 12px; border-radius: 6px; font-size: 12px; font-family: inherit; width: 180px; }
+  .api-input:focus { outline: none; border-color: var(--green); }
+
+  /* STATS BAR */
+  .stats-bar { background: var(--white); border-bottom: 1px solid var(--gray-border); display: grid; grid-template-columns: repeat(5,1fr); }
+  .stat { padding: 10px 20px; border-right: 1px solid var(--gray-border); display: flex; align-items: center; gap: 12px; }
   .stat:last-child { border-right: none; }
-  .stat-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
-  .stat-val { font-size: 18px; font-weight: 600; font-family: 'Unbounded', sans-serif; }
-  .layout { display: flex; height: calc(100vh - 108px); }
-  .sidebar { width: 300px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
-  .sidebar-top { padding: 10px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
-  .search { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 7px 10px; border-radius: 4px; font-size: 11px; font-family: inherit; width: 100%; }
-  .search:focus { outline: none; border-color: var(--accent); }
+  .stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .stat-info { }
+  .stat-label { font-size: 10px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-val { font-size: 22px; font-weight: 700; font-family: 'Montserrat', sans-serif; line-height: 1.1; }
+
+  /* LAYOUT */
+  .layout { display: flex; height: calc(100vh - 112px); }
+
+  /* SIDEBAR */
+  .sidebar { width: 310px; background: var(--white); border-right: 1px solid var(--gray-border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar-top { padding: 12px; border-bottom: 1px solid var(--gray-border); display: flex; flex-direction: column; gap: 8px; }
+  .search-wrap { position: relative; }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 14px; }
+  .search { background: var(--gray-light); border: 1px solid var(--gray-border); color: var(--text); padding: 8px 12px 8px 32px; border-radius: 8px; font-size: 12px; font-family: inherit; width: 100%; transition: all 0.2s; }
+  .search:focus { outline: none; border-color: var(--green); background: var(--white); box-shadow: 0 0 0 3px rgba(90,158,47,0.1); }
   .filter-row { display: flex; gap: 6px; }
-  .fselect { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px 8px; border-radius: 4px; font-size: 10px; font-family: inherit; flex: 1; }
-  .btn-sm { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-size: 10px; font-family: inherit; cursor: pointer; white-space: nowrap; }
-  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
-  .drop-zone { margin: 8px 10px; border: 1px dashed var(--border2); border-radius: 6px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s; font-size: 10px; color: var(--muted); }
-  .drop-zone:hover, .drop-zone.drag { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.04); }
+  .fselect { background: var(--gray-light); border: 1px solid var(--gray-border); color: var(--text); padding: 7px 10px; border-radius: 8px; font-size: 11px; font-family: inherit; flex: 1; cursor: pointer; }
+  .fselect:focus { outline: none; border-color: var(--green); }
+  .btn-refresh { background: var(--green); color: white; border: none; padding: 7px 14px; border-radius: 8px; font-size: 11px; font-family: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+  .btn-refresh:hover { background: var(--green-dark); }
+
+  /* UPLOAD ZONE */
+  .drop-zone { margin: 10px 12px 0; border: 2px dashed var(--gray-border); border-radius: 10px; padding: 12px; text-align: center; cursor: pointer; transition: all 0.2s; }
+  .drop-zone:hover, .drop-zone.drag { border-color: var(--green); background: var(--green-bg); }
+  .drop-zone-icon { font-size: 20px; margin-bottom: 4px; }
+  .drop-zone-text { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .drop-zone.drag .drop-zone-text { color: var(--green); }
   .drop-zone input { display: none; }
-  .batch-bar { padding: 6px 10px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; align-items: center; background: var(--bg); }
-  .batch-label { font-size: 10px; color: var(--muted); flex: 1; }
-  .btn-batch { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 8px; border-radius: 3px; font-size: 10px; font-family: inherit; cursor: pointer; }
-  .btn-batch:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* BATCH BAR */
+  .batch-bar { padding: 8px 12px; border-bottom: 1px solid var(--gray-border); border-top: 1px solid var(--gray-border); margin-top: 10px; display: flex; gap: 6px; align-items: center; background: var(--gray-light); }
+  .batch-label { font-size: 11px; color: var(--text-muted); flex: 1; font-weight: 500; }
+  .btn-batch { background: var(--white); border: 1px solid var(--gray-border); color: var(--gray); padding: 4px 10px; border-radius: 6px; font-size: 10px; font-family: inherit; cursor: pointer; font-weight: 600; transition: all 0.15s; }
+  .btn-batch:hover { border-color: var(--green); color: var(--green); }
+
+  /* FILE LIST */
   .file-list { flex: 1; overflow-y: auto; }
-  .file-list::-webkit-scrollbar { width: 3px; }
-  .file-list::-webkit-scrollbar-thumb { background: var(--border2); }
-  .file-item { padding: 10px 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; display: flex; align-items: flex-start; gap: 8px; }
-  .file-item:hover { background: var(--surface2); }
-  .file-item.active { background: rgba(0,153,255,0.06); border-left: 2px solid var(--accent2); }
-  .file-cb { width: 14px; height: 14px; accent-color: var(--accent); flex-shrink: 0; margin-top: 2px; }
+  .file-list::-webkit-scrollbar { width: 4px; }
+  .file-list::-webkit-scrollbar-thumb { background: var(--gray-border); border-radius: 2px; }
+  .file-item { padding: 12px 14px; border-bottom: 1px solid var(--gray-border); cursor: pointer; transition: all 0.15s; display: flex; align-items: flex-start; gap: 10px; }
+  .file-item:hover { background: var(--gray-light); }
+  .file-item.active { background: var(--green-bg); border-left: 3px solid var(--green); }
+  .file-cb { width: 15px; height: 15px; accent-color: var(--green); flex-shrink: 0; margin-top: 3px; cursor: pointer; }
   .file-info { flex: 1; min-width: 0; }
-  .file-name { font-size: 11px; font-weight: 600; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .file-meta { font-size: 10px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; }
-  .fbadge { padding: 1px 6px; border-radius: 2px; font-size: 9px; font-weight: 600; }
-  .fbadge-new { background: rgba(0,153,255,0.15); color: var(--accent2); }
-  .fbadge-saved { background: rgba(0,204,102,0.15); color: var(--green); }
-  .fbadge-done { background: rgba(255,140,0,0.15); color: var(--warn); }
-  .sidebar-footer { padding: 8px 12px; border-top: 1px solid var(--border); font-size: 10px; color: var(--muted); }
-  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
-  .toolbar { height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 8px; flex-shrink: 0; }
-  .sel-name { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 180px; }
-  .view-group { display: flex; gap: 2px; }
-  .vbtn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; font-size: 10px; font-family: inherit; cursor: pointer; border-radius: 3px; }
-  .vbtn.on { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+  .file-name { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-meta { font-size: 10px; color: var(--text-muted); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .fbadge { padding: 2px 7px; border-radius: 10px; font-size: 10px; font-weight: 600; }
+  .fbadge-new { background: var(--blue-light); color: var(--blue); }
+  .fbadge-saved { background: var(--green-bg); color: var(--green-dark); }
+  .fbadge-done { background: var(--orange-light); color: #c17a00; }
+  .sidebar-footer { padding: 8px 14px; border-top: 1px solid var(--gray-border); font-size: 11px; color: var(--text-muted); background: var(--gray-light); }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* TOOLBAR */
+  .toolbar { background: var(--white); border-bottom: 1px solid var(--gray-border); padding: 10px 20px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+  .sel-name { font-size: 12px; color: var(--text-muted); font-weight: 500; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .view-group { display: flex; border: 1px solid var(--gray-border); border-radius: 8px; overflow: hidden; }
+  .vbtn { background: var(--white); border: none; border-right: 1px solid var(--gray-border); color: var(--text-muted); padding: 6px 12px; font-size: 11px; font-family: inherit; cursor: pointer; font-weight: 500; transition: all 0.15s; }
+  .vbtn:last-child { border-right: none; }
+  .vbtn.on { background: var(--green); color: white; font-weight: 600; }
+  .vbtn:hover:not(.on) { background: var(--gray-light); color: var(--text); }
   .spacer { flex: 1; }
-  .btn { padding: 6px 12px; border: none; border-radius: 4px; font-size: 11px; font-family: inherit; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-  .btn:disabled { opacity: 0.25; cursor: not-allowed; }
-  .btn-db { background: rgba(136,85,255,0.2); color: var(--purple); border: 1px solid rgba(136,85,255,0.4); }
-  .btn-site { background: rgba(0,153,255,0.2); color: var(--accent2); border: 1px solid rgba(0,153,255,0.4); }
-  .btn-ai { background: rgba(255,140,0,0.2); color: var(--warn); border: 1px solid rgba(255,140,0,0.4); }
-  .btn-done { background: rgba(0,204,102,0.2); color: var(--green); border: 1px solid rgba(0,204,102,0.4); }
-  .btn-sql { background: rgba(0,212,170,0.15); color: var(--accent); border: 1px solid rgba(0,212,170,0.35); }
-  .btn-del { background: rgba(255,51,85,0.2); color: var(--danger); border: 1px solid rgba(255,51,85,0.4); }
-  .content { flex: 1; overflow-y: auto; padding: 16px; }
-  .content::-webkit-scrollbar { width: 3px; }
-  .content::-webkit-scrollbar-thumb { background: var(--border2); }
-  .empty { text-align: center; padding: 80px 20px; color: var(--muted); }
-  .empty h2 { font-family: 'Unbounded', sans-serif; font-size: 14px; margin-bottom: 8px; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 12px; }
-  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .card-num { font-family: 'Unbounded', sans-serif; font-size: 13px; color: var(--accent); }
-  .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
-  .cf { background: var(--bg); border: 1px solid var(--border); padding: 8px 10px; border-radius: 4px; }
-  .cf-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
-  .cf-val { font-size: 12px; }
-  .cf-val.big { font-size: 16px; font-weight: 700; color: var(--accent); }
-  .cf-val.blue { color: var(--accent2); font-size: 15px; font-weight: 700; }
-  .sec-title { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
-  .tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
-  .tbl th { background: var(--bg); padding: 8px 10px; text-align: left; font-size: 9px; color: var(--muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
-  .tbl td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  .tbl tr:hover td { background: var(--surface2); }
-  .tbl td.nm { color: var(--accent2); font-weight: 600; }
-  .tbl td.pr { color: var(--green); }
-  .tbl td.ad { color: var(--muted); font-size: 10px; }
-  .json-view { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 14px; font-size: 11px; line-height: 1.7; white-space: pre-wrap; color: #7a9ab0; overflow-x: auto; }
-  .log-area { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; font-size: 10px; max-height: 90px; overflow-y: auto; margin-top: 12px; }
-  .ll { padding: 1px 0; }
+  .btn { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-family: inherit; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; display: flex; align-items: center; gap: 5px; }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  .btn-db { background: var(--purple-light); color: var(--purple); border: 1px solid rgba(142,68,173,0.25); }
+  .btn-db:hover:not(:disabled) { background: var(--purple); color: white; }
+  .btn-site { background: var(--green-bg); color: var(--green-dark); border: 1px solid rgba(90,158,47,0.3); }
+  .btn-site:hover:not(:disabled) { background: var(--green); color: white; }
+  .btn-ai { background: var(--orange-light); color: #c17a00; border: 1px solid rgba(245,166,35,0.3); }
+  .btn-ai:hover:not(:disabled) { background: var(--orange); color: white; }
+  .btn-sql { background: var(--blue-light); color: var(--blue); border: 1px solid rgba(41,128,185,0.25); }
+  .btn-sql:hover:not(:disabled) { background: var(--blue); color: white; }
+  .btn-done { background: var(--green-bg); color: var(--green-dark); border: 1px solid rgba(90,158,47,0.3); }
+  .btn-done:hover:not(:disabled) { background: var(--green-dark); color: white; }
+  .btn-del { background: var(--red-light); color: var(--red); border: 1px solid rgba(231,76,60,0.25); }
+  .btn-del:hover:not(:disabled) { background: var(--red); color: white; }
+
+  /* CONTENT */
+  .content { flex: 1; overflow-y: auto; padding: 20px; background: #f0f2f5; }
+  .content::-webkit-scrollbar { width: 4px; }
+  .content::-webkit-scrollbar-thumb { background: var(--gray-border); border-radius: 2px; }
+  .empty { text-align: center; padding: 80px 20px; color: var(--text-muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty h2 { font-family: 'Montserrat', sans-serif; font-size: 16px; color: var(--text); margin-bottom: 6px; }
+
+  /* CARD VIEW */
+  .info-card { background: var(--white); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 2px solid var(--green-bg); }
+  .card-num { font-family: 'Montserrat', sans-serif; font-size: 16px; font-weight: 700; color: var(--green-dark); }
+  .card-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 14px; }
+  .cf { background: var(--gray-light); border: 1px solid var(--gray-border); padding: 10px 12px; border-radius: 8px; }
+  .cf-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; margin-bottom: 4px; }
+  .cf-val { font-size: 13px; font-weight: 600; color: var(--text); }
+  .cf-val.big { font-size: 20px; color: var(--green); }
+  .cf-val.price { font-size: 18px; color: var(--orange); }
+  .sec-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+  .sec-title::after { content:''; flex:1; height:1px; background:var(--gray-border); }
+
+  /* TABLE */
+  .tbl-wrap { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .tbl th { background: var(--green); color: white; padding: 10px 14px; text-align: left; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+  .tbl td { padding: 11px 14px; border-bottom: 1px solid var(--gray-border); vertical-align: middle; }
+  .tbl tr:last-child td { border-bottom: none; }
+  .tbl tr:hover td { background: var(--green-bg); }
+  .tbl td.nm { color: var(--green-dark); font-weight: 600; }
+  .tbl td.pr { color: var(--orange); font-weight: 700; }
+  .tbl td.ad { color: var(--text-muted); font-size: 11px; }
+
+  /* JSON */
+  .json-wrap { background: var(--white); border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow); }
+  .json-view { font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.7; white-space: pre-wrap; color: #2c3e50; overflow-x: auto; }
+
+  /* LOG */
+  .log-card { background: var(--white); border-radius: var(--radius); padding: 12px 16px; box-shadow: var(--shadow); margin-top: 14px; max-height: 90px; overflow-y: auto; }
+  .log-card::-webkit-scrollbar { width: 3px; }
+  .log-card::-webkit-scrollbar-thumb { background: var(--gray-border); }
+  .ll { padding: 2px 0; font-size: 11px; font-family: 'Courier New', monospace; }
   .ll.ok { color: var(--green); }
-  .ll.err { color: var(--danger); }
-  .ll.info { color: var(--muted); }
+  .ll.err { color: var(--red); }
+  .ll.info { color: var(--text-muted); }
+
   /* MODAL */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(26,35,50,0.6); z-index: 1000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 8px; width: 860px; max-width: 95vw; max-height: 88vh; display: flex; flex-direction: column; box-shadow: 0 24px 80px rgba(0,0,0,0.6); }
-  .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
-  .modal-title { font-family: 'Unbounded', sans-serif; font-size: 13px; color: var(--accent2); }
-  .modal-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
-  .modal-close { margin-left: auto; background: transparent; border: none; color: var(--muted); font-size: 18px; cursor: pointer; }
-  .modal-close:hover { color: var(--danger); }
-  .modal-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
-  .modal-body::-webkit-scrollbar { width: 3px; }
-  .modal-body::-webkit-scrollbar-thumb { background: var(--border2); }
-  .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
-  .modal-info { font-size: 10px; color: var(--muted); flex: 1; }
-  .modal-info span { color: var(--accent); font-weight: 600; }
-  .sup-card { border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; margin-bottom: 8px; cursor: pointer; transition: all 0.15s; }
-  .sup-card:hover { border-color: var(--border2); background: var(--surface2); }
-  .sup-card.selected { border-color: var(--accent2); background: rgba(0,153,255,0.05); }
-  .sup-check { width: 16px; height: 16px; border: 1.5px solid var(--border2); border-radius: 3px; flex-shrink: 0; position: relative; transition: all 0.15s; }
-  .sup-card.selected .sup-check { background: var(--accent2); border-color: var(--accent2); }
+  .modal { background: var(--white); border-radius: 14px; width: 880px; max-width: 95vw; max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+  .modal-header { padding: 20px 24px; border-bottom: 2px solid var(--green-bg); display: flex; align-items: center; gap: 12px; }
+  .modal-header-icon { width: 40px; height: 40px; background: var(--green); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .modal-title { font-family: 'Montserrat', sans-serif; font-size: 15px; font-weight: 700; color: var(--text); }
+  .modal-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .modal-close { margin-left: auto; background: var(--gray-light); border: none; color: var(--text-muted); width: 32px; height: 32px; border-radius: 8px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .modal-close:hover { background: var(--red-light); color: var(--red); }
+  .modal-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+  .modal-body::-webkit-scrollbar { width: 4px; }
+  .modal-body::-webkit-scrollbar-thumb { background: var(--gray-border); }
+  .modal-footer { padding: 14px 24px; border-top: 1px solid var(--gray-border); display: flex; gap: 10px; align-items: center; background: var(--gray-light); border-radius: 0 0 14px 14px; }
+  .modal-info { font-size: 12px; color: var(--text-muted); flex: 1; }
+  .modal-info span { color: var(--green); font-weight: 700; }
+
+  /* SUPPLIER CARDS */
+  .sup-card { border: 2px solid var(--gray-border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; cursor: pointer; transition: all 0.15s; }
+  .sup-card:hover { border-color: var(--green-light); box-shadow: var(--shadow); }
+  .sup-card.selected { border-color: var(--green); background: var(--green-bg); }
+  .sup-check { width: 18px; height: 18px; border: 2px solid var(--gray-border); border-radius: 5px; flex-shrink: 0; position: relative; transition: all 0.15s; background: white; }
+  .sup-card.selected .sup-check { background: var(--green); border-color: var(--green); }
   .sup-card.selected .sup-check::after { display: block; }
-  .sup-check::after { content: '✓'; display: none; position: absolute; top: -2px; left: 1px; font-size: 12px; color: white; }
-  .sup-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-  .sup-num { font-size: 9px; color: var(--muted); background: var(--bg); padding: 2px 6px; border-radius: 2px; }
-  .sup-name { font-size: 12px; font-weight: 600; color: var(--accent2); flex: 1; }
-  .sup-fio { font-size: 10px; color: var(--muted); }
+  .sup-check::after { content: '✓'; display: none; position: absolute; top: -3px; left: 1px; font-size: 13px; color: white; font-weight: 700; }
+  .sup-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .sup-num { font-size: 10px; color: var(--text-muted); background: var(--gray-light); padding: 2px 8px; border-radius: 10px; font-weight: 600; }
+  .sup-name { font-size: 13px; font-weight: 700; color: var(--text); flex: 1; }
+  .sup-fio { font-size: 11px; color: var(--text-muted); }
   .sup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-  .sup-field { background: var(--bg); padding: 6px 8px; border-radius: 3px; }
-  .sup-field-label { font-size: 9px; color: var(--muted); margin-bottom: 2px; }
-  .sup-field input { background: transparent; border: none; color: var(--text); font-size: 11px; font-family: inherit; width: 100%; outline: none; }
-  .sup-field input:focus { color: var(--accent); }
-  .sup-addr { margin-top: 6px; background: var(--bg); padding: 6px 8px; border-radius: 3px; font-size: 10px; color: var(--muted); }
-  .sel-all-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
-  .sel-all-row label { font-size: 11px; cursor: pointer; }
-  .preview-box { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; margin-top: 10px; font-size: 10px; color: var(--muted); }
-  .preview-title { color: var(--warn); font-weight: 600; margin-bottom: 6px; font-size: 11px; }
-  .preview-row { padding: 3px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+  .sup-field { background: white; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--gray-border); }
+  .sup-field-label { font-size: 9px; color: var(--text-muted); margin-bottom: 3px; text-transform: uppercase; font-weight: 600; }
+  .sup-field input { background: transparent; border: none; color: var(--text); font-size: 12px; font-family: inherit; font-weight: 600; width: 100%; outline: none; }
+  .sup-field input:focus { color: var(--green); }
+  .sup-addr { margin-top: 8px; background: white; padding: 7px 10px; border-radius: 8px; font-size: 11px; color: var(--text-muted); border: 1px solid var(--gray-border); }
+  .sel-all-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding: 12px 14px; background: var(--green-bg); border-radius: 8px; }
+  .sel-all-row label { font-size: 12px; font-weight: 600; color: var(--green-dark); cursor: pointer; }
+  .preview-box { background: var(--gray-light); border: 1px solid var(--gray-border); border-radius: 10px; padding: 14px 16px; margin-top: 14px; }
+  .preview-title { color: var(--text); font-weight: 700; margin-bottom: 10px; font-size: 12px; display: flex; align-items: center; gap: 6px; }
+  .preview-row { padding: 6px 0; border-bottom: 1px solid var(--gray-border); display: flex; gap: 12px; font-size: 12px; }
   .preview-row:last-child { border-bottom: none; }
-  .pname { color: var(--text); flex: 1; }
-  .pprice { color: var(--green); width: 80px; }
-  .pqty { color: var(--accent2); width: 60px; }
-  .sql-pre { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 14px; font-size: 10px; line-height: 1.8; overflow-x: auto; white-space: pre-wrap; color: #7a9ab0; max-height: 55vh; overflow-y: auto; }
+  .pname { color: var(--text); flex: 1; font-weight: 500; }
+  .pprice { color: var(--orange); font-weight: 700; width: 90px; }
+  .pqty { color: var(--blue); font-weight: 600; width: 60px; }
+
+  /* SQL */
+  .sql-pre { background: #1e2d40; color: #a8d8a8; border-radius: 8px; padding: 16px; font-size: 11px; line-height: 1.8; overflow-x: auto; white-space: pre-wrap; max-height: 52vh; overflow-y: auto; font-family: 'Courier New', monospace; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="logo">🌾 AGRO</div>
-  <div class="live-dot"></div>
-  <div class="live-text">LIVE</div>
-  <input class="api-input" id="apiKey" type="password" value="agro_secret_2025">
+  <div class="logo">
+    <div class="logo-icon">🌾</div>
+    <div>
+      <div class="logo-text">Русский Урожай</div>
+      <div class="logo-sub">Панель управления</div>
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <div class="header-title">Агро Администратор</div>
+  <div class="live-badge">
+    <div class="live-dot"></div>
+    <div class="live-text">LIVE</div>
+  </div>
+  <div class="header-right">
+    <div class="api-wrap">
+      <span class="api-label">API ключ</span>
+      <input class="api-input" id="apiKey" type="password" value="agro_secret_2025">
+    </div>
+  </div>
 </div>
 
-<div class="stats">
-  <div class="stat"><div class="stat-label">Всего</div><div class="stat-val" style="color:var(--accent)" id="sAll">—</div></div>
-  <div class="stat"><div class="stat-label">Новые</div><div class="stat-val" style="color:var(--accent2)" id="sNew">—</div></div>
-  <div class="stat"><div class="stat-label">В базе</div><div class="stat-val" style="color:var(--green)" id="sSaved">—</div></div>
-  <div class="stat"><div class="stat-label">Готово</div><div class="stat-val" style="color:var(--warn)" id="sDone">—</div></div>
-  <div class="stat"><div class="stat-label">Выбрано</div><div class="stat-val" id="sSel">0</div></div>
+<div class="stats-bar">
+  <div class="stat">
+    <div class="stat-icon" style="background:#eaf4fb">📁</div>
+    <div class="stat-info"><div class="stat-label">Всего файлов</div><div class="stat-val" style="color:var(--blue)" id="sAll">—</div></div>
+  </div>
+  <div class="stat">
+    <div class="stat-icon" style="background:var(--blue-light)">🆕</div>
+    <div class="stat-info"><div class="stat-label">Новые</div><div class="stat-val" style="color:var(--blue)" id="sNew">—</div></div>
+  </div>
+  <div class="stat">
+    <div class="stat-icon" style="background:var(--green-bg)">✅</div>
+    <div class="stat-info"><div class="stat-label">В базе</div><div class="stat-val" style="color:var(--green)" id="sSaved">—</div></div>
+  </div>
+  <div class="stat">
+    <div class="stat-icon" style="background:var(--orange-light)">⭐</div>
+    <div class="stat-info"><div class="stat-label">Обработано</div><div class="stat-val" style="color:var(--orange)" id="sDone">—</div></div>
+  </div>
+  <div class="stat">
+    <div class="stat-icon" style="background:#f5eefb">☑️</div>
+    <div class="stat-info"><div class="stat-label">Выбрано</div><div class="stat-val" style="color:var(--purple)" id="sSel">0</div></div>
+  </div>
 </div>
 
 <div class="layout">
   <div class="sidebar">
     <div class="sidebar-top">
-      <input class="search" id="srch" placeholder="/ поиск..." oninput="renderList()">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input class="search" id="srch" placeholder="Поиск по файлам..." oninput="renderList()">
+      </div>
       <div class="filter-row">
         <select class="fselect" id="fStatus" onchange="renderList()">
-          <option value="">все статусы</option>
-          <option value="new">новые</option>
-          <option value="saved">в базе</option>
-          <option value="done">готово</option>
+          <option value="">Все статусы</option>
+          <option value="new">Новые</option>
+          <option value="saved">В базе</option>
+          <option value="done">Готово</option>
         </select>
-        <button class="btn-sm" onclick="loadFiles()">↻ обновить</button>
+        <button class="btn-refresh" onclick="loadFiles()">↻ Обновить</button>
       </div>
     </div>
+
     <div class="drop-zone" id="dropZone" onclick="document.getElementById('fi').click()"
          ondragover="event.preventDefault();this.classList.add('drag')"
          ondragleave="this.classList.remove('drag')"
          ondrop="handleDrop(event)">
       <input type="file" id="fi" accept=".json,.jsn" multiple onchange="uploadFiles(this.files)">
-      ⬆ загрузить файлы (drag & drop)
+      <div class="drop-zone-icon">⬆️</div>
+      <div class="drop-zone-text">Загрузить файлы из 1С<br><span style="font-size:10px;color:var(--text-muted)">drag & drop или клик</span></div>
     </div>
+
     <div class="batch-bar">
-      <span class="batch-label" id="batchLabel">выберите файлы</span>
-      <button class="btn-batch" onclick="selectAll()">все</button>
-      <button class="btn-batch" onclick="selectNone()">сброс</button>
+      <span class="batch-label" id="batchLabel">Выберите файлы</span>
+      <button class="btn-batch" onclick="selectAll()">Все</button>
+      <button class="btn-batch" onclick="selectNone()">Сброс</button>
     </div>
+
     <div class="file-list" id="fileList"></div>
-    <div class="sidebar-footer" id="sfooter"></div>
+    <div class="sidebar-footer" id="sfooter">Загрузка...</div>
   </div>
 
   <div class="main">
     <div class="toolbar">
-      <span class="sel-name" id="selName">выберите файл</span>
+      <span class="sel-name" id="selName">Выберите файл для просмотра</span>
       <div class="view-group">
-        <button class="vbtn on" id="vCard" onclick="setView('card')">карточка</button>
-        <button class="vbtn" id="vTable" onclick="setView('table')">таблица</button>
-        <button class="vbtn" id="vJson" onclick="setView('json')">json</button>
+        <button class="vbtn on" id="vCard" onclick="setView('card')">📋 Карточка</button>
+        <button class="vbtn" id="vTable" onclick="setView('table')">📊 Таблица</button>
+        <button class="vbtn" id="vJson" onclick="setView('json')">{ } JSON</button>
       </div>
       <div class="spacer"></div>
-      <button class="btn btn-db" id="btnDb" disabled onclick="saveToDb()">💾 в БД</button>
-      <button class="btn btn-site" id="btnSite" disabled onclick="openSiteModal()">🌐 на сайт</button>
-      <button class="btn btn-ai" id="btnAi" disabled onclick="analyzeAi()">🤖 AI</button>
+      <button class="btn btn-db" id="btnDb" disabled onclick="saveToDb()">💾 В базу</button>
+      <button class="btn btn-site" id="btnSite" disabled onclick="openSiteModal()">🌐 На сайт</button>
+      <button class="btn btn-ai" id="btnAi" disabled onclick="analyzeAi()">🤖 AI анализ</button>
       <button class="btn btn-sql" id="btnSql" disabled onclick="exportSql()">{ } SQL</button>
-      <button class="btn btn-done" id="btnDone" disabled onclick="markDone()">✓ готово</button>
-      <button class="btn btn-del" id="btnDel" disabled onclick="deleteFile()">✕</button>
+      <button class="btn btn-done" id="btnDone" disabled onclick="markDone()">✓ Готово</button>
+      <button class="btn btn-del" id="btnDel" disabled onclick="deleteFile()">🗑</button>
     </div>
     <div class="content" id="content">
-      <div class="empty"><h2>AGRO ADMIN</h2><p>выберите файл из списка</p></div>
+      <div class="empty">
+        <div class="empty-icon">🌾</div>
+        <h2>Русский Урожай — Админ панель</h2>
+        <p>Выберите файл из списка слева для просмотра</p>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- SQL MODAL -->
 <div class="modal-overlay" id="sqlModal">
-  <div class="modal" style="width:780px">
+  <div class="modal" style="width:800px">
     <div class="modal-header">
+      <div class="modal-header-icon">{ }</div>
       <div>
-        <div class="modal-title">{ } SQL → products_sale</div>
-        <div class="modal-sub" id="sqlSub">готовый INSERT для phpMyAdmin</div>
+        <div class="modal-title">SQL Экспорт → products_sale</div>
+        <div class="modal-sub" id="sqlSub">Готовый INSERT запрос для phpMyAdmin</div>
       </div>
       <button class="modal-close" onclick="closeSqlModal()">✕</button>
     </div>
     <div class="modal-body">
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <button class="btn btn-done" onclick="copySql()">📋 копировать</button>
-        <span style="font-size:10px;color:var(--green)" id="copyStatus"></span>
+      <div style="display:flex;gap:10px;margin-bottom:14px;align-items:center">
+        <button class="btn btn-site" onclick="copySql()">📋 Копировать SQL</button>
+        <span style="font-size:12px;color:var(--green);font-weight:600" id="copyStatus"></span>
+        <span style="font-size:11px;color:var(--text-muted);margin-left:auto">Вставь в phpMyAdmin → SQL → Вперёд</span>
       </div>
       <pre class="sql-pre" id="sqlText"></pre>
     </div>
     <div class="modal-footer">
-      <div class="modal-info">Вставь в phpMyAdmin → SQL → Вперёд</div>
-      <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted)" onclick="closeSqlModal()">закрыть</button>
+      <div class="modal-info">💡 Скопируй и вставь в <strong>phpMyAdmin → SQL → Вперёд</strong></div>
+      <button class="btn btn-del" onclick="closeSqlModal()">Закрыть</button>
     </div>
   </div>
 </div>
@@ -239,17 +371,18 @@
 <div class="modal-overlay" id="siteModal">
   <div class="modal">
     <div class="modal-header">
+      <div class="modal-header-icon">🌐</div>
       <div>
-        <div class="modal-title">🌐 ОТПРАВКА НА САЙТ</div>
-        <div class="modal-sub" id="siteSub">выберите поставщиков</div>
+        <div class="modal-title">Отправка на сайт russian-harvest.ru</div>
+        <div class="modal-sub" id="siteSub">Выберите поставщиков для публикации</div>
       </div>
       <button class="modal-close" onclick="closeSiteModal()">✕</button>
     </div>
     <div class="modal-body" id="siteBody"></div>
     <div class="modal-footer">
-      <div class="modal-info">Выбрано: <span id="siteCount">0</span> поставщиков</div>
-      <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted)" onclick="closeSiteModal()">отмена</button>
-      <button class="btn btn-site" onclick="sendToSite()">🚀 отправить</button>
+      <div class="modal-info">Выбрано поставщиков: <span id="siteCount">0</span></div>
+      <button class="btn btn-del" onclick="closeSiteModal()">Отмена</button>
+      <button class="btn btn-site" onclick="sendToSite()">🚀 Опубликовать на сайте</button>
     </div>
   </div>
 </div>
@@ -257,8 +390,7 @@
 <script>
 const WEBHOOK = 'https://russian-harvest.ru/webhook.php';
 let files = [], selected = null, curData = null, view = 'card';
-let checkedFiles = new Set();
-let modalSups = [];
+let checkedFiles = new Set(), modalSups = [];
 
 const ak = () => document.getElementById('apiKey').value;
 
@@ -274,8 +406,8 @@ function log(msg, type) {
 
 function statusBadge(s) {
   const map = {new:'fbadge-new', saved:'fbadge-saved', done:'fbadge-done'};
-  const lab = {new:'новый', saved:'в бд', done:'готово'};
-  return '<span class="fbadge ' + (map[s]||'fbadge-new') + '">' + (lab[s]||'новый') + '</span>';
+  const lab = {new:'Новый', saved:'В базе', done:'Готово'};
+  return '<span class="fbadge ' + (map[s]||'fbadge-new') + '">' + (lab[s]||'Новый') + '</span>';
 }
 
 function setView(v) {
@@ -300,7 +432,7 @@ async function loadFiles() {
     files = await r.json();
     updateStats();
     renderList();
-  } catch(e) { console.error(e); }
+  } catch(e) { console.error('loadFiles error:', e); }
 }
 
 function renderList() {
@@ -309,21 +441,22 @@ function renderList() {
   const filtered = files.filter(function(f) {
     return f.name.toLowerCase().includes(srch) && (!fs || f.status === fs);
   });
-  document.getElementById('sfooter').textContent = filtered.length + ' / ' + files.length + ' файлов';
-  document.getElementById('batchLabel').textContent = checkedFiles.size ? 'выбрано: ' + checkedFiles.size : 'выберите файлы';
+  document.getElementById('sfooter').textContent = 'Показано: ' + filtered.length + ' из ' + files.length;
+  document.getElementById('batchLabel').textContent = checkedFiles.size ? 'Выбрано: ' + checkedFiles.size : 'Выберите файлы';
   updateStats();
   if (!filtered.length) {
-    document.getElementById('fileList').innerHTML = '<div style="padding:20px;text-align:center;font-size:10px;color:var(--muted)">нет файлов</div>';
+    document.getElementById('fileList').innerHTML = '<div style="padding:24px;text-align:center;font-size:12px;color:var(--text-muted)">🌱 Файлов не найдено</div>';
     return;
   }
   document.getElementById('fileList').innerHTML = filtered.map(function(f) {
     const short = f.name.replace(/^\d{8}_\d{6}_/, '');
     const cb = checkedFiles.has(f.name) ? 'checked' : '';
-    return '<div class="file-item ' + (selected===f.name?'active':'') + '" onclick="selectFile(\'' + f.name.replace(/'/g,"\\'") + '\')">' +
-      '<input type="checkbox" class="file-cb" ' + cb + ' onclick="event.stopPropagation();toggleCheck(\'' + f.name.replace(/'/g,"\\'") + '\',this.checked)">' +
+    const safeName = f.name.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return '<div class="file-item ' + (selected===f.name?'active':'') + '" onclick="selectFile(\'' + safeName + '\')">' +
+      '<input type="checkbox" class="file-cb" ' + cb + ' onclick="event.stopPropagation();toggleCheck(\'' + safeName + '\',this.checked)">' +
       '<div class="file-info">' +
         '<div class="file-name">' + short + '</div>' +
-        '<div class="file-meta"><span>' + f.created + '</span><span>' + (f.size/1024).toFixed(1) + 'kb</span>' + statusBadge(f.status) + '</div>' +
+        '<div class="file-meta"><span>' + f.created + '</span><span>' + (f.size/1024).toFixed(1) + ' KB</span>' + statusBadge(f.status) + '</div>' +
       '</div></div>';
   }).join('');
 }
@@ -331,78 +464,74 @@ function renderList() {
 function toggleCheck(name, checked) {
   checked ? checkedFiles.add(name) : checkedFiles.delete(name);
   updateStats();
-  document.getElementById('batchLabel').textContent = checkedFiles.size ? 'выбрано: ' + checkedFiles.size : 'выберите файлы';
+  document.getElementById('batchLabel').textContent = checkedFiles.size ? 'Выбрано: ' + checkedFiles.size : 'Выберите файлы';
 }
 
 function selectAll() { files.forEach(function(f){checkedFiles.add(f.name);}); renderList(); }
 function selectNone() { checkedFiles.clear(); renderList(); }
 
-function enableBtns() {
-  ['btnDb','btnSite','btnAi','btnSql','btnDone','btnDel'].forEach(function(id){
-    document.getElementById(id).disabled = false;
-  });
-}
-function disableBtns() {
-  ['btnDb','btnSite','btnAi','btnSql','btnDone','btnDel'].forEach(function(id){
-    document.getElementById(id).disabled = true;
-  });
-}
+function enableBtns() { ['btnDb','btnSite','btnAi','btnSql','btnDone','btnDel'].forEach(function(id){ document.getElementById(id).disabled=false; }); }
+function disableBtns() { ['btnDb','btnSite','btnAi','btnSql','btnDone','btnDel'].forEach(function(id){ document.getElementById(id).disabled=true; }); }
 
 async function selectFile(name) {
   selected = name;
   renderList();
   enableBtns();
   document.getElementById('selName').textContent = name.replace(/^\d{8}_\d{6}_/, '');
-  document.getElementById('content').innerHTML = '<div class="empty"><p>загрузка...</p></div>';
+  document.getElementById('content').innerHTML = '<div class="empty"><div class="empty-icon">⏳</div><p>Загрузка файла...</p></div>';
   try {
     const r = await fetch('/files/' + encodeURIComponent(name), {headers: {'x-api-key': ak()}});
     curData = await r.json();
     renderContent(curData);
   } catch(e) {
-    document.getElementById('content').innerHTML = '<div class="empty"><p>ошибка загрузки</p></div>';
+    document.getElementById('content').innerHTML = '<div class="empty"><div class="empty-icon">❌</div><p>Ошибка загрузки файла</p></div>';
   }
 }
 
 function renderContent(data) {
   const fi = files.find(function(f){return f.name===selected;}) || {};
   if (view === 'json') {
-    document.getElementById('content').innerHTML = '<div class="json-view">' + JSON.stringify(data, null, 2) + '</div><div class="log-area" id="logArea"></div>';
+    document.getElementById('content').innerHTML = '<div class="json-wrap"><pre class="json-view">' + JSON.stringify(data, null, 2) + '</pre></div><div class="log-card" id="logArea"></div>';
     return;
   }
   const sups = data['Закупка'] || [];
   if (view === 'table') {
     document.getElementById('content').innerHTML =
-      '<table class="tbl"><thead><tr><th>#</th><th>Контрагент</th><th>Адрес</th><th>Показатели</th><th>Цена</th><th>Объём</th><th>ФИО</th></tr></thead><tbody>' +
-      sups.map(function(s){return '<tr><td style="color:var(--muted)">' + s['НомерСтроки'] + '</td><td class="nm">' + s['Контрагент'] + '</td><td class="ad">' + s['АдресЗагрузки'] + '</td><td>' + s['КачественныеПоказатели'] + '</td><td class="pr">' + s['Цена'] + '</td><td>' + s['Объем'] + '</td><td style="font-size:10px;color:var(--muted)">' + s['ФИО'] + '</td></tr>';}).join('') +
-      '</tbody></table><div class="log-area" id="logArea"></div>';
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>#</th><th>Контрагент</th><th>Адрес загрузки</th><th>Показатели</th><th>Цена</th><th>Объём</th><th>ФИО</th></tr></thead><tbody>' +
+      sups.map(function(s){ return '<tr><td style="color:var(--text-muted);font-weight:600">' + s['НомерСтроки'] + '</td><td class="nm">' + s['Контрагент'] + '</td><td class="ad">' + s['АдресЗагрузки'] + '</td><td>' + s['КачественныеПоказатели'] + '</td><td class="pr">' + s['Цена'] + ' ₽/т</td><td style="font-weight:600">' + s['Объем'] + ' т</td><td style="font-size:11px;color:var(--text-muted)">' + s['ФИО'] + '</td></tr>'; }).join('') +
+      '</tbody></table></div><div class="log-card" id="logArea"></div>';
     return;
   }
+  // CARD VIEW
   document.getElementById('content').innerHTML =
-    '<div class="card">' +
-      '<div class="card-header"><div class="card-num">№ ' + (data['Номер']||'') + '</div>' + statusBadge(fi.status) + '</div>' +
+    '<div class="info-card">' +
+      '<div class="card-header">' +
+        '<div class="card-num">📋 Потребность № ' + (data['Номер']||'') + '</div>' +
+        statusBadge(fi.status) +
+      '</div>' +
       '<div class="card-grid">' +
         '<div class="cf"><div class="cf-label">Дата</div><div class="cf-val">' + (data['Дата']||'—') + '</div></div>' +
         '<div class="cf"><div class="cf-label">Статус</div><div class="cf-val">' + (data['Статус']||'—') + '</div></div>' +
         '<div class="cf"><div class="cf-label">Тип сделки</div><div class="cf-val">' + (data['Тип сделки']||'—') + '</div></div>' +
-        '<div class="cf"><div class="cf-label">Номенклатура</div><div class="cf-val">' + (data['Номенклатура']||'—') + '</div></div>' +
+        '<div class="cf"><div class="cf-label">Номенклатура</div><div class="cf-val" style="color:var(--green-dark)">' + (data['Номенклатура']||'—') + '</div></div>' +
         '<div class="cf"><div class="cf-label">Покупатель</div><div class="cf-val">' + (data['Покупатель']||'—') + '</div></div>' +
-        '<div class="cf"><div class="cf-label">Источник</div><div class="cf-val">' + (data['Источник маржинальности']||'—') + '</div></div>' +
-        '<div class="cf"><div class="cf-label">Объём</div><div class="cf-val big">' + (data['Объём']||'—') + '</div></div>' +
-        '<div class="cf"><div class="cf-label">Сумма</div><div class="cf-val blue">' + (data['Сумма']||'—') + '</div></div>' +
+        '<div class="cf"><div class="cf-label">Источник маржинальности</div><div class="cf-val">' + (data['Источник маржинальности']||'—') + '</div></div>' +
+        '<div class="cf"><div class="cf-label">Общий объём</div><div class="cf-val big">' + (data['Объём']||'—') + ' т</div></div>' +
+        '<div class="cf"><div class="cf-label">Сумма</div><div class="cf-val price">' + (data['Сумма']||'—') + ' ₽</div></div>' +
         '<div class="cf"><div class="cf-label">Осталось</div><div class="cf-val">' + (data['Осталось']||'—') + '</div></div>' +
       '</div>' +
-      '<div class="cf" style="margin-bottom:14px"><div class="cf-label">Адрес выгрузки</div><div class="cf-val" style="font-size:11px">' + (data['Адрес выгрузки']||'—') + '</div></div>' +
-      '<div class="sec-title">ПОСТАВЩИКИ — ' + sups.length + '</div>' +
-      '<table class="tbl"><thead><tr><th>#</th><th>Контрагент</th><th>Адрес загрузки</th><th>Показатели</th><th>Цена</th><th>Объём</th><th>ФИО</th></tr></thead><tbody>' +
-      sups.map(function(s){return '<tr><td style="color:var(--muted)">' + s['НомерСтроки'] + '</td><td class="nm">' + s['Контрагент'] + '</td><td class="ad">' + s['АдресЗагрузки'] + '</td><td>' + s['КачественныеПоказатели'] + '</td><td class="pr">' + s['Цена'] + '</td><td>' + s['Объем'] + '</td><td style="font-size:10px;color:var(--muted)">' + s['ФИО'] + '</td></tr>';}).join('') +
-      '</tbody></table>' +
+      '<div class="cf" style="margin-bottom:16px"><div class="cf-label">Адрес выгрузки</div><div class="cf-val" style="font-size:12px;font-weight:500">📍 ' + (data['Адрес выгрузки']||'—') + '</div></div>' +
+      '<div class="sec-title">Поставщики (' + sups.length + ')</div>' +
+      '<div class="tbl-wrap"><table class="tbl"><thead><tr><th>#</th><th>Контрагент</th><th>Адрес загрузки</th><th>Показатели качества</th><th>Цена</th><th>Объём</th><th>ФИО менеджера</th></tr></thead><tbody>' +
+      sups.map(function(s){ return '<tr><td style="color:var(--text-muted);font-weight:600">' + s['НомерСтроки'] + '</td><td class="nm">' + s['Контрагент'] + '</td><td class="ad">' + s['АдресЗагрузки'] + '</td><td>' + s['КачественныеПоказатели'] + '</td><td class="pr">' + s['Цена'] + ' ₽/т</td><td style="font-weight:700;color:var(--blue)">' + s['Объем'] + ' т</td><td style="font-size:11px;color:var(--text-muted)">' + s['ФИО'] + '</td></tr>'; }).join('') +
+      '</tbody></table></div>' +
     '</div>' +
-    '<div class="log-area" id="logArea"><div class="ll info">[открыт] ' + (selected||'').replace(/^\d{8}_\d{6}_/,'') + '</div></div>';
+    '<div class="log-card" id="logArea"><div class="ll info">[' + new Date().toLocaleTimeString() + '] Открыт файл: ' + (selected||'').replace(/^\d{8}_\d{6}_/,'') + '</div></div>';
 }
 
 async function uploadFiles(fileList) {
   const dz = document.getElementById('dropZone');
-  dz.textContent = 'загружаю ' + fileList.length + ' файл(ов)...';
+  dz.querySelector('.drop-zone-text').textContent = 'Загружаю ' + fileList.length + ' файл(ов)...';
   let ok = 0;
   for (let i = 0; i < fileList.length; i++) {
     const fd = new FormData();
@@ -413,8 +542,8 @@ async function uploadFiles(fileList) {
       if (d.status === 'ok') ok++;
     } catch(e) {}
   }
-  dz.textContent = '✅ загружено ' + ok + '/' + fileList.length;
-  setTimeout(function(){ dz.textContent = '⬆ загрузить файлы (drag & drop)'; }, 2500);
+  dz.querySelector('.drop-zone-text').textContent = '✅ Загружено: ' + ok + '/' + fileList.length;
+  setTimeout(function(){ dz.querySelector('.drop-zone-text').innerHTML = 'Загрузить файлы из 1С<br><span style="font-size:10px;color:var(--text-muted)">drag & drop или клик</span>'; }, 3000);
   document.getElementById('fi').value = '';
   loadFiles();
 }
@@ -427,17 +556,16 @@ function handleDrop(e) {
 
 async function saveToDb() {
   if (!selected) return;
-  log('сохранение в БД...', 'info');
+  log('Сохранение в базу данных...', 'info');
   try {
     const r = await fetch('/save-to-db/' + encodeURIComponent(selected), {method:'POST', headers:{'x-api-key':ak()}});
     const d = await r.json();
-    if (d.status === 'ok') { log('✅ сохранено. поставщиков: ' + d.suppliers, 'ok'); loadFiles(); }
+    if (d.status === 'ok') { log('✅ Сохранено! Поставщиков: ' + d.suppliers, 'ok'); loadFiles(); }
     else if (d.status === 'skipped') log('⚠️ ' + d.reason, 'err');
     else log('❌ ' + JSON.stringify(d), 'err');
   } catch(e) { log('❌ ' + e, 'err'); }
 }
 
-// SQL EXPORT
 function cleanNum(s) { return parseInt(String(s).replace(/[^0-9]/g,'')) || 0; }
 function esc(s) { return String(s||'').replace(/'/g,"''"); }
 
@@ -453,35 +581,34 @@ function exportSql() {
   const lines = sups.map(function(s) {
     const price = cleanNum(s['Цена']);
     const qty = cleanNum(s['Объем']);
-    const mesto = esc(s['АдресЗагрузки'] || '');
-    const quality = esc(s['КачественныеПоказатели'] || '');
-    const fio = esc(s['ФИО'] || '');
-    const kontragent = esc(s['Контрагент'] || '');
+    const mesto = esc(s['АдресЗагрузки']||'');
+    const quality = esc(s['КачественныеПоказатели']||'');
+    const fio = esc(s['ФИО']||'');
+    const kontragent = esc(s['Контрагент']||'');
     const name = esc(nom);
-    const msg = esc('№' + number + ' | ' + buyer + ' | ' + delivery + ' | ' + quality + ' | ' + fio);
-    return "INSERT INTO `products_sale` (`user_id`,`name`,`date`,`price`,`mesto`,`type`,`year`,`country`,`quantity`,`declar`,`protein`,`primes`,`kley`,`cislo`,`belok`,`vlaga`,`zerno`,`steklo`,`natura`,`msg`,`clas`,`zaraza`,`photo1`,`photo2`,`photo3`,`photo4`,`set1`,`set2`,`set3`,`set4`,`set5`,`set6`,`m1`,`m2`,`m3`,`m4`) VALUES (40,'" + name + "','" + date + "'," + price + ",'" + mesto + "','С НДС'," + year + ",'Россия'," + qty + ",'','" + quality + "','','','','','','','','','" + msg + "','','','','','','','Самовывоз','Предоплата','','','','','" + kontragent + "','" + fio + "','','');";
+    const msg = esc('№'+number+' | '+buyer+' | '+delivery+' | '+quality+' | '+fio);
+    return "INSERT INTO `products_sale` (`user_id`,`name`,`date`,`price`,`mesto`,`type`,`year`,`country`,`quantity`,`declar`,`protein`,`primes`,`kley`,`cislo`,`belok`,`vlaga`,`zerno`,`steklo`,`natura`,`msg`,`clas`,`zaraza`,`photo1`,`photo2`,`photo3`,`photo4`,`set1`,`set2`,`set3`,`set4`,`set5`,`set6`,`m1`,`m2`,`m3`,`m4`) VALUES (40,'"+name+"','"+date+"',"+price+",'"+mesto+"','С НДС',"+year+",'Россия',"+qty+",'','"+quality+"','','','','','','','','','"+msg+"','','','','','','','Самовывоз','Предоплата','','','','','"+kontragent+"','"+fio+"','','');";
   });
-  const sql = '-- Агро импорт: №' + number + ' (' + nom + ')\n-- Покупатель: ' + buyer + '\n-- Дата: ' + date + '\n-- Поставщиков: ' + sups.length + '\n\n' + lines.join('\n\n');
+  const sql = '-- ================================================\n-- Русский Урожай: Импорт из 1С\n-- Документ: №'+number+' ('+nom+')\n-- Покупатель: '+buyer+'\n-- Дата: '+date+'\n-- Поставщиков: '+sups.length+'\n-- ================================================\n\n' + lines.join('\n\n');
   document.getElementById('sqlText').textContent = sql;
-  document.getElementById('sqlSub').textContent = '№' + number + ' · ' + nom + ' · ' + sups.length + ' поставщиков';
+  document.getElementById('sqlSub').textContent = '№'+number+' · '+nom+' · '+sups.length+' поставщиков';
   document.getElementById('sqlModal').classList.add('open');
 }
 
 async function copySql() {
   await navigator.clipboard.writeText(document.getElementById('sqlText').textContent);
   const s = document.getElementById('copyStatus');
-  s.textContent = '✅ скопировано!';
-  setTimeout(function(){ s.textContent = ''; }, 2000);
+  s.textContent = '✅ Скопировано в буфер!';
+  setTimeout(function(){ s.textContent=''; }, 2500);
 }
 
 function closeSqlModal() { document.getElementById('sqlModal').classList.remove('open'); }
 
-// SITE MODAL
 function openSiteModal() {
   if (!curData) return;
   const sups = curData['Закупка'] || [];
-  modalSups = sups.map(function(s,i){ return Object.assign({}, s, {_sel:true, _price:s['Цена'], _qty:s['Объем'], _idx:i}); });
-  document.getElementById('siteSub').textContent = '№' + (curData['Номер']||'') + ' · ' + (curData['Номенклатура']||'') + ' · ' + (curData['Покупатель']||'');
+  modalSups = sups.map(function(s,i){ return Object.assign({},s,{_sel:true,_price:s['Цена'],_qty:s['Объем'],_idx:i}); });
+  document.getElementById('siteSub').textContent = '№'+(curData['Номер']||'')+' · '+(curData['Номенклатура']||'')+' · '+(curData['Покупатель']||'');
   renderSiteModal();
   document.getElementById('siteModal').classList.add('open');
 }
@@ -492,16 +619,16 @@ function renderSiteModal() {
   const count = modalSups.filter(function(s){return s._sel;}).length;
   document.getElementById('siteCount').textContent = count;
   const selAll = modalSups.every(function(s){return s._sel;});
-  let html = '<div class="sel-all-row"><input type="checkbox" id="cbAll" ' + (selAll?'checked':'') + ' onchange="toggleAllSups(this.checked)" style="accent-color:var(--accent);width:14px;height:14px"><label for="cbAll">выбрать всех (' + modalSups.length + ')</label></div>';
-  modalSups.forEach(function(s,i) {
-    html += '<div class="sup-card ' + (s._sel?'selected':'') + '" id="sc'+i+'" onclick="toggleSup('+i+')">' +
-      '<div class="sup-top"><div class="sup-check" id="ck'+i+'"></div><div class="sup-num">#'+s['НомерСтроки']+'</div><div class="sup-name">'+s['Контрагент']+'</div><div class="sup-fio">'+s['ФИО']+'</div></div>' +
-      '<div class="sup-grid">' +
-        '<div class="sup-field"><div class="sup-field-label">ЦЕНА</div><input id="p'+i+'" value="'+s._price+'" onclick="event.stopPropagation()" oninput="modalSups['+i+']._price=this.value;renderPreview()"></div>' +
-        '<div class="sup-field"><div class="sup-field-label">ОБЪЁМ</div><input id="q'+i+'" value="'+s._qty+'" onclick="event.stopPropagation()" oninput="modalSups['+i+']._qty=this.value;renderPreview()"></div>' +
-        '<div class="sup-field"><div class="sup-field-label">ПОКАЗАТЕЛИ</div><input value="'+s['КачественныеПоказатели']+'" onclick="event.stopPropagation()" oninput="modalSups['+i+']['+"'КачественныеПоказатели'"+'].value=this.value"></div>' +
-      '</div>' +
-      '<div class="sup-addr">📍 '+s['АдресЗагрузки']+'</div>' +
+  let html = '<div class="sel-all-row"><input type="checkbox" id="cbAll" '+(selAll?'checked':'')+' onchange="toggleAllSups(this.checked)" style="accent-color:var(--green);width:16px;height:16px"><label for="cbAll">Выбрать всех поставщиков ('+modalSups.length+')</label></div>';
+  modalSups.forEach(function(s,i){
+    html += '<div class="sup-card '+(s._sel?'selected':'')+'" id="sc'+i+'" onclick="toggleSup('+i+')">'+
+      '<div class="sup-top"><div class="sup-check" id="ck'+i+'"></div><div class="sup-num">№'+s['НомерСтроки']+'</div><div class="sup-name">'+s['Контрагент']+'</div><div class="sup-fio">'+s['ФИО']+'</div></div>'+
+      '<div class="sup-grid">'+
+        '<div class="sup-field"><div class="sup-field-label">Цена (₽/т)</div><input id="p'+i+'" value="'+s._price+'" onclick="event.stopPropagation()" oninput="modalSups['+i+']._price=this.value;renderPreview()"></div>'+
+        '<div class="sup-field"><div class="sup-field-label">Объём (т)</div><input id="q'+i+'" value="'+s._qty+'" onclick="event.stopPropagation()" oninput="modalSups['+i+']._qty=this.value;renderPreview()"></div>'+
+        '<div class="sup-field"><div class="sup-field-label">Показатели</div><input value="'+s['КачественныеПоказатели']+'" onclick="event.stopPropagation()"></div>'+
+      '</div>'+
+      '<div class="sup-addr">📍 '+s['АдресЗагрузки']+'</div>'+
     '</div>';
   });
   html += '<div class="preview-box" id="previewBox"></div>';
@@ -514,45 +641,45 @@ function renderPreview() {
   document.getElementById('siteCount').textContent = sel.length;
   const pb = document.getElementById('previewBox');
   if (!pb) return;
-  if (!sel.length) { pb.innerHTML = '<div class="preview-title">👁 ПРЕДПРОСМОТР</div><div style="color:var(--muted);font-size:10px">нет выбранных</div>'; return; }
-  pb.innerHTML = '<div class="preview-title">👁 ПРЕДПРОСМОТР — уйдёт на сайт</div>' +
-    sel.map(function(s){ return '<div class="preview-row"><span class="pname">' + (curData['Номенклатура']||'') + ' · ' + s['Контрагент'] + '</span><span class="pprice">' + s._price + '</span><span class="pqty">' + s._qty + '</span></div>'; }).join('');
+  if (!sel.length) { pb.innerHTML='<div class="preview-title">👁 Предпросмотр</div><div style="font-size:12px;color:var(--text-muted)">Нет выбранных поставщиков</div>'; return; }
+  pb.innerHTML = '<div class="preview-title">👁 Предпросмотр — что уйдёт на сайт</div>' +
+    sel.map(function(s){ return '<div class="preview-row"><span class="pname">'+(curData['Номенклатура']||'')+' · '+s['Контрагент']+'</span><span class="pprice">'+s._price+' ₽</span><span class="pqty">'+s._qty+' т</span></div>'; }).join('');
 }
 
-function toggleSup(i) { modalSups[i]._sel = !modalSups[i]._sel; renderSiteModal(); }
+function toggleSup(i) { modalSups[i]._sel=!modalSups[i]._sel; renderSiteModal(); }
 function toggleAllSups(v) { modalSups.forEach(function(s){s._sel=v;}); renderSiteModal(); }
 
 async function sendToSite() {
   const toSend = modalSups.filter(function(s){return s._sel;});
-  if (!toSend.length) { alert('Выберите поставщиков'); return; }
-  const payload = Object.assign({}, curData, {Закупка: toSend.map(function(s){ return Object.assign({}, s, {Цена:s._price, Объем:s._qty}); })});
+  if (!toSend.length) { alert('Выберите хотя бы одного поставщика'); return; }
+  const payload = Object.assign({},curData,{Закупка:toSend.map(function(s){return Object.assign({},s,{Цена:s._price,Объем:s._qty});})});
   try {
-    const r = await fetch(WEBHOOK, {method:'POST', headers:{'Content-Type':'application/json','X-Api-Key':'agro_webhook_2025'}, body:JSON.stringify(payload)});
+    const r = await fetch(WEBHOOK, {method:'POST',headers:{'Content-Type':'application/json','X-Api-Key':'agro_webhook_2025'},body:JSON.stringify(payload)});
     const d = await r.json();
     closeSiteModal();
-    log(d.status==='ok' ? '✅ на сайт: ' + d.inserted + ' позиций' : '❌ ' + JSON.stringify(d), d.status==='ok'?'ok':'err');
-  } catch(e) { log('❌ ' + e, 'err'); closeSiteModal(); }
+    log(d.status==='ok'?'✅ На сайт отправлено: '+d.inserted+' позиций':'❌ '+JSON.stringify(d), d.status==='ok'?'ok':'err');
+  } catch(e) { log('❌ '+e,'err'); closeSiteModal(); }
 }
 
 async function markDone() {
   if (!selected) return;
-  const r = await fetch('/mark-done/' + encodeURIComponent(selected), {method:'POST', headers:{'x-api-key':ak()}});
+  const r = await fetch('/mark-done/'+encodeURIComponent(selected),{method:'POST',headers:{'x-api-key':ak()}});
   const d = await r.json();
-  if (d.status==='ok') { log('✅ обработан', 'ok'); loadFiles(); }
+  if (d.status==='ok') { log('✅ Помечено как обработано','ok'); loadFiles(); }
 }
 
 async function deleteFile() {
-  if (!selected || !confirm('удалить файл?')) return;
-  await fetch('/files/' + encodeURIComponent(selected), {method:'DELETE', headers:{'x-api-key':ak()}});
-  log('удалён: ' + selected, 'ok');
-  selected = null; curData = null;
+  if (!selected||!confirm('Удалить файл "'+selected.replace(/^\d{8}_\d{6}_/,'') + '"?')) return;
+  await fetch('/files/'+encodeURIComponent(selected),{method:'DELETE',headers:{'x-api-key':ak()}});
+  log('Удалён: '+selected,'info');
+  selected=null; curData=null;
   disableBtns();
-  document.getElementById('selName').textContent = 'выберите файл';
-  document.getElementById('content').innerHTML = '<div class="empty"><h2>AGRO ADMIN</h2></div>';
+  document.getElementById('selName').textContent='Выберите файл для просмотра';
+  document.getElementById('content').innerHTML='<div class="empty"><div class="empty-icon">🌾</div><h2>Русский Урожай — Админ панель</h2><p>Выберите файл из списка слева</p></div>';
   loadFiles();
 }
 
-function analyzeAi() { log('⚠️ AI — будет подключён позже', 'err'); }
+function analyzeAi() { log('⚠️ AI анализ будет подключён позже','err'); }
 
 loadFiles();
 setInterval(loadFiles, 30000);
