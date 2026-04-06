@@ -5,179 +5,664 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agro Admin</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Unbounded:wght@400;600;700&display=swap');
+
+  :root {
+    --bg: #080c0f;
+    --surface: #0e1418;
+    --surface2: #141c22;
+    --border: #1e2a32;
+    --border2: #243040;
+    --text: #d4e4f0;
+    --muted: #4a6070;
+    --accent: #00d4aa;
+    --accent2: #0099ff;
+    --warn: #ff8c00;
+    --danger: #ff3355;
+    --purple: #8855ff;
+    --green: #00cc66;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, sans-serif; background: #0f1117; color: #e0e0e0; }
-  .header { background: #1a1d2e; padding: 20px 30px; border-bottom: 1px solid #2a2d3e; display: flex; align-items: center; gap: 15px; }
-  .header h1 { font-size: 20px; font-weight: 600; }
-  .badge { background: #22c55e; color: #000; padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: 700; }
-  .container { display: flex; height: calc(100vh - 65px); }
-  .sidebar { width: 340px; background: #13151f; border-right: 1px solid #2a2d3e; overflow-y: auto; }
-  .sidebar-header { padding: 15px 20px; border-bottom: 1px solid #2a2d3e; display: flex; justify-content: space-between; align-items: center; }
-  .sidebar-header span { font-size: 13px; color: #888; }
-  .btn-refresh { background: #2a2d3e; border: none; color: #e0e0e0; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; }
-  .btn-refresh:hover { background: #3a3d4e; }
-  .file-item { padding: 14px 20px; border-bottom: 1px solid #1e2030; cursor: pointer; transition: background 0.15s; }
-  .file-item:hover { background: #1a1d2e; }
-  .file-item.active { background: #1e3a5f; border-left: 3px solid #3b82f6; }
-  .file-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; word-break: break-all; }
-  .file-meta { font-size: 11px; color: #666; display: flex; gap: 10px; }
-  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  .toolbar { padding: 15px 25px; background: #13151f; border-bottom: 1px solid #2a2d3e; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-  .toolbar span { font-size: 13px; color: #666; margin-right: 5px; }
-  .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all 0.15s; }
-  .btn-db { background: #7c3aed; color: white; }
-  .btn-db:hover { background: #6d28d9; }
-  .btn-site { background: #0891b2; color: white; }
-  .btn-site:hover { background: #0e7490; }
-  .btn-ai { background: #d97706; color: white; }
-  .btn-ai:hover { background: #b45309; }
-  .btn-delete { background: #dc2626; color: white; margin-left: auto; }
-  .btn-delete:hover { background: #b91c1c; }
-  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .content { flex: 1; overflow-y: auto; padding: 25px; }
-  .empty { text-align: center; color: #444; padding: 80px 20px; }
-  .empty h2 { font-size: 18px; margin-bottom: 8px; }
-  .json-viewer { background: #1a1d2e; border-radius: 8px; padding: 20px; font-family: monospace; font-size: 13px; line-height: 1.6; overflow-x: auto; white-space: pre-wrap; }
-  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .stat-card { background: #1a1d2e; border-radius: 8px; padding: 15px 20px; }
-  .stat-label { font-size: 11px; color: #666; margin-bottom: 4px; text-transform: uppercase; }
-  .stat-value { font-size: 22px; font-weight: 700; }
-  .log { background: #0d1117; border-radius: 8px; padding: 15px; font-family: monospace; font-size: 12px; max-height: 150px; overflow-y: auto; margin-top: 15px; }
-  .log-line { padding: 2px 0; }
-  .log-ok { color: #22c55e; }
-  .log-err { color: #ef4444; }
-  .log-info { color: #888; }
-  .api-key-input { background: #1a1d2e; border: 1px solid #2a2d3e; color: #e0e0e0; padding: 6px 10px; border-radius: 6px; font-size: 12px; width: 200px; }
+  body { font-family: 'JetBrains Mono', monospace; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+
+  /* HEADER */
+  .header {
+    height: 52px; background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; padding: 0 20px; gap: 16px;
+  }
+  .logo { font-family: 'Unbounded', sans-serif; font-size: 13px; font-weight: 700; color: var(--accent); letter-spacing: 0.05em; }
+  .live-dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .live-text { font-size: 10px; color: var(--green); letter-spacing: 0.1em; }
+  .api-key-wrap { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .api-label { font-size: 10px; color: var(--muted); }
+  .api-input { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-size: 11px; font-family: inherit; width: 200px; }
+
+  /* STATS */
+  .stats { height: 56px; background: var(--surface); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: repeat(5, 1fr); }
+  .stat { display: flex; flex-direction: column; justify-content: center; padding: 0 16px; border-right: 1px solid var(--border); }
+  .stat:last-child { border-right: none; }
+  .stat-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 3px; }
+  .stat-val { font-size: 18px; font-weight: 600; font-family: 'Unbounded', sans-serif; }
+  .stat-val.green { color: var(--green); }
+  .stat-val.blue { color: var(--accent2); }
+  .stat-val.orange { color: var(--warn); }
+  .stat-val.accent { color: var(--accent); }
+
+  /* LAYOUT */
+  .layout { display: flex; height: calc(100vh - 108px); }
+
+  /* SIDEBAR */
+  .sidebar { width: 300px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; }
+  .sidebar-top { padding: 10px; border-bottom: 1px solid var(--border); display: flex; flex-direction: column; gap: 6px; }
+  .search { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 7px 10px; border-radius: 4px; font-size: 11px; font-family: inherit; width: 100%; }
+  .search:focus { outline: none; border-color: var(--accent); }
+  .filter-row { display: flex; gap: 6px; }
+  .fselect { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 5px 8px; border-radius: 4px; font-size: 10px; font-family: inherit; flex: 1; cursor: pointer; }
+  .btn-sm { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 5px 10px; border-radius: 4px; font-size: 10px; font-family: inherit; cursor: pointer; white-space: nowrap; }
+  .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* UPLOAD ZONE */
+  .drop-zone {
+    margin: 8px 10px; border: 1px dashed var(--border2); border-radius: 6px;
+    padding: 10px; text-align: center; cursor: pointer; transition: all 0.2s;
+    font-size: 10px; color: var(--muted); letter-spacing: 0.05em;
+  }
+  .drop-zone:hover, .drop-zone.drag { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.04); }
+  .drop-zone input { display: none; }
+
+  /* BATCH ACTIONS */
+  .batch-bar { padding: 6px 10px; border-bottom: 1px solid var(--border); display: flex; gap: 6px; align-items: center; background: var(--bg); }
+  .batch-label { font-size: 10px; color: var(--muted); flex: 1; }
+  .btn-batch { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 8px; border-radius: 3px; font-size: 10px; font-family: inherit; cursor: pointer; transition: all 0.15s; }
+  .btn-batch:hover { border-color: var(--accent2); color: var(--accent2); }
+  .btn-batch.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,170,0.08); }
+
+  /* FILE LIST */
+  .file-list { flex: 1; overflow-y: auto; }
+  .file-list::-webkit-scrollbar { width: 3px; }
+  .file-list::-webkit-scrollbar-thumb { background: var(--border2); }
+  .file-item { padding: 10px 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; display: flex; align-items: flex-start; gap: 8px; }
+  .file-item:hover { background: var(--surface2); }
+  .file-item.active { background: rgba(0,153,255,0.06); border-left: 2px solid var(--accent2); }
+  .file-cb { width: 14px; height: 14px; accent-color: var(--accent); flex-shrink: 0; margin-top: 2px; cursor: pointer; }
+  .file-info { flex: 1; min-width: 0; }
+  .file-name { font-size: 11px; font-weight: 600; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-meta { font-size: 10px; color: var(--muted); display: flex; gap: 8px; flex-wrap: wrap; }
+  .fbadge { padding: 1px 6px; border-radius: 2px; font-size: 9px; font-weight: 600; letter-spacing: 0.05em; }
+  .fbadge-new { background: rgba(0,153,255,0.15); color: var(--accent2); }
+  .fbadge-saved { background: rgba(0,204,102,0.15); color: var(--green); }
+  .fbadge-done { background: rgba(255,140,0,0.15); color: var(--warn); }
+  .sidebar-footer { padding: 8px 12px; border-top: 1px solid var(--border); font-size: 10px; color: var(--muted); }
+
+  /* MAIN */
+  .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+  /* TOOLBAR */
+  .toolbar { height: 46px; background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; padding: 0 16px; gap: 8px; flex-shrink: 0; }
+  .sel-name { font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 200px; }
+  .view-group { display: flex; gap: 2px; margin-left: 4px; }
+  .vbtn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 4px 10px; font-size: 10px; font-family: inherit; cursor: pointer; border-radius: 3px; transition: all 0.15s; }
+  .vbtn.on { background: var(--surface2); border-color: var(--accent); color: var(--accent); }
+  .spacer { flex: 1; }
+  .btn { padding: 6px 14px; border: none; border-radius: 4px; font-size: 11px; font-family: inherit; font-weight: 600; cursor: pointer; transition: all 0.15s; letter-spacing: 0.02em; }
+  .btn:disabled { opacity: 0.25; cursor: not-allowed; }
+  .btn-db { background: rgba(136,85,255,0.2); color: var(--purple); border: 1px solid rgba(136,85,255,0.4); }
+  .btn-db:hover:not(:disabled) { background: rgba(136,85,255,0.35); }
+  .btn-site { background: rgba(0,153,255,0.2); color: var(--accent2); border: 1px solid rgba(0,153,255,0.4); }
+  .btn-site:hover:not(:disabled) { background: rgba(0,153,255,0.35); }
+  .btn-ai { background: rgba(255,140,0,0.2); color: var(--warn); border: 1px solid rgba(255,140,0,0.4); }
+  .btn-ai:hover:not(:disabled) { background: rgba(255,140,0,0.35); }
+  .btn-done { background: rgba(0,204,102,0.2); color: var(--green); border: 1px solid rgba(0,204,102,0.4); }
+  .btn-done:hover:not(:disabled) { background: rgba(0,204,102,0.35); }
+  .btn-del { background: rgba(255,51,85,0.2); color: var(--danger); border: 1px solid rgba(255,51,85,0.4); }
+  .btn-del:hover:not(:disabled) { background: rgba(255,51,85,0.35); }
+
+  /* CONTENT */
+  .content { flex: 1; overflow-y: auto; padding: 16px; }
+  .content::-webkit-scrollbar { width: 3px; }
+  .content::-webkit-scrollbar-thumb { background: var(--border2); }
+  .empty { text-align: center; padding: 80px 20px; color: var(--muted); }
+  .empty h2 { font-family: 'Unbounded', sans-serif; font-size: 14px; margin-bottom: 8px; }
+
+  /* CARD VIEW */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 12px; }
+  .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .card-num { font-family: 'Unbounded', sans-serif; font-size: 13px; color: var(--accent); }
+  .card-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .cf { background: var(--bg); border: 1px solid var(--border); padding: 8px 10px; border-radius: 4px; }
+  .cf-label { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 3px; }
+  .cf-val { font-size: 12px; }
+  .cf-val.big { font-size: 16px; font-weight: 700; color: var(--accent); }
+  .cf-val.blue { color: var(--accent2); font-size: 15px; font-weight: 700; }
+  .sec-title { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 8px; }
+
+  /* TABLE */
+  .tbl { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .tbl th { background: var(--bg); padding: 8px 10px; text-align: left; font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+  .tbl td { padding: 9px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .tbl tr:hover td { background: var(--surface2); }
+  .tbl td.name { color: var(--accent2); font-weight: 600; }
+  .tbl td.price { color: var(--green); }
+  .tbl td.addr { color: var(--muted); font-size: 10px; }
+
+  /* JSON */
+  .json-view { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 14px; font-size: 11px; line-height: 1.7; white-space: pre-wrap; color: #7a9ab0; overflow-x: auto; }
+
+  /* LOG */
+  .log-area { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; font-size: 10px; max-height: 90px; overflow-y: auto; margin-top: 12px; }
+  .log-area::-webkit-scrollbar { width: 2px; }
+  .ll { padding: 1px 0; }
+  .ll.ok { color: var(--green); }
+  .ll.err { color: var(--danger); }
+  .ll.info { color: var(--muted); }
+
+  /* ===== MODAL ===== */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000;
+    display: none; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border2); border-radius: 8px;
+    width: 860px; max-width: 95vw; max-height: 88vh; display: flex; flex-direction: column;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.6);
+  }
+  .modal-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+  .modal-title { font-family: 'Unbounded', sans-serif; font-size: 13px; color: var(--accent2); }
+  .modal-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .modal-close { margin-left: auto; background: transparent; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 4px; }
+  .modal-close:hover { color: var(--danger); }
+  .modal-body { flex: 1; overflow-y: auto; padding: 16px 20px; }
+  .modal-body::-webkit-scrollbar { width: 3px; }
+  .modal-body::-webkit-scrollbar-thumb { background: var(--border2); }
+  .modal-footer { padding: 12px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: center; }
+  .modal-info { font-size: 10px; color: var(--muted); flex: 1; }
+  .modal-info span { color: var(--accent); font-weight: 600; }
+
+  /* SUPPLIER CARDS IN MODAL */
+  .sup-card {
+    border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px;
+    margin-bottom: 8px; cursor: pointer; transition: all 0.15s; position: relative;
+  }
+  .sup-card:hover { border-color: var(--border2); background: var(--surface2); }
+  .sup-card.selected { border-color: var(--accent2); background: rgba(0,153,255,0.05); }
+  .sup-card.selected .sup-check { background: var(--accent2); border-color: var(--accent2); }
+  .sup-card.selected .sup-check::after { display: block; }
+  .sup-check {
+    width: 16px; height: 16px; border: 1.5px solid var(--border2); border-radius: 3px;
+    flex-shrink: 0; position: relative; transition: all 0.15s;
+  }
+  .sup-check::after { content: '✓'; display: none; position: absolute; top: -2px; left: 1px; font-size: 12px; color: white; }
+  .sup-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .sup-num { font-size: 9px; color: var(--muted); background: var(--bg); padding: 2px 6px; border-radius: 2px; }
+  .sup-name { font-size: 12px; font-weight: 600; color: var(--accent2); flex: 1; }
+  .sup-fio { font-size: 10px; color: var(--muted); }
+  .sup-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .sup-field { background: var(--bg); padding: 6px 8px; border-radius: 3px; }
+  .sup-field-label { font-size: 9px; color: var(--muted); margin-bottom: 2px; }
+  .sup-field input { background: transparent; border: none; color: var(--text); font-size: 11px; font-family: inherit; width: 100%; outline: none; }
+  .sup-field input:focus { color: var(--accent); }
+  .sup-addr { margin-top: 6px; background: var(--bg); padding: 6px 8px; border-radius: 3px; font-size: 10px; color: var(--muted); }
+
+  /* SELECT ALL */
+  .sel-all-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  .sel-all-row label { font-size: 11px; color: var(--text); cursor: pointer; }
+  .preview-box { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; margin-top: 10px; font-size: 10px; color: var(--muted); }
+  .preview-box .preview-title { color: var(--warn); font-weight: 600; margin-bottom: 6px; font-size: 11px; }
+  .preview-row { padding: 3px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+  .preview-row:last-child { border-bottom: none; }
+  .preview-row .pname { color: var(--text); flex: 1; }
+  .preview-row .pprice { color: var(--green); width: 80px; }
+  .preview-row .pqty { color: var(--accent2); width: 60px; }
 </style>
 </head>
 <body>
+
 <div class="header">
-  <h1>🌾 Agro Admin</h1>
-  <span class="badge">LIVE</span>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:10px;">
-    <span style="font-size:12px;color:#666;">API Key:</span>
-    <input class="api-key-input" id="apiKey" type="password" value="agro_secret_2025">
+  <div class="logo">🌾 AGRO</div>
+  <div class="live-dot"></div>
+  <div class="live-text">LIVE</div>
+  <div class="api-key-wrap">
+    <span class="api-label">API KEY</span>
+    <input class="api-input" id="apiKey" type="password" value="agro_secret_2025">
   </div>
 </div>
-<div class="container">
+
+<div class="stats">
+  <div class="stat"><div class="stat-label">Всего файлов</div><div class="stat-val accent" id="sAll">—</div></div>
+  <div class="stat"><div class="stat-label">Новые</div><div class="stat-val blue" id="sNew">—</div></div>
+  <div class="stat"><div class="stat-label">В базе</div><div class="stat-val green" id="sSaved">—</div></div>
+  <div class="stat"><div class="stat-label">Обработано</div><div class="stat-val orange" id="sDone">—</div></div>
+  <div class="stat"><div class="stat-label">Выбрано</div><div class="stat-val" id="sSelected" style="color:var(--text)">0</div></div>
+</div>
+
+<div class="layout">
   <div class="sidebar">
-    <div class="sidebar-header">
-      <span id="fileCount">Загрузка...</span>
-      <button class="btn-refresh" onclick="loadFiles()">↻ Обновить</button>
+    <div class="sidebar-top">
+      <input class="search" id="srch" placeholder="/ поиск..." oninput="renderList()">
+      <div class="filter-row">
+        <select class="fselect" id="fStatus" onchange="renderList()">
+          <option value="">все статусы</option>
+          <option value="new">новые</option>
+          <option value="saved">в базе</option>
+          <option value="done">готово</option>
+        </select>
+        <button class="btn-sm" onclick="loadFiles()">↻ обновить</button>
+      </div>
     </div>
-    <div id="fileList"><div style="padding:20px;color:#444;">Загрузка...</div></div>
+
+    <div class="drop-zone" id="dropZone" onclick="document.getElementById('fi').click()"
+         ondragover="event.preventDefault();this.classList.add('drag')"
+         ondragleave="this.classList.remove('drag')"
+         ondrop="handleDrop(event)">
+      <input type="file" id="fi" accept=".json,.jsn" multiple onchange="uploadFiles(this.files)">
+      ⬆ загрузить файлы (drag & drop)
+    </div>
+
+    <div class="batch-bar">
+      <span class="batch-label" id="batchLabel">выберите файлы</span>
+      <button class="btn-batch" onclick="selectAll()">все</button>
+      <button class="btn-batch" onclick="selectNone()">сброс</button>
+    </div>
+
+    <div class="file-list" id="fileList"></div>
+    <div class="sidebar-footer" id="sfooter"></div>
   </div>
+
   <div class="main">
     <div class="toolbar">
-      <span>Действия:</span>
-      <button class="btn btn-db" id="btnDb" disabled onclick="saveToDb()">💾 Сохранить в БД</button>
-      <button class="btn btn-site" id="btnSite" disabled onclick="sendToSite()">🌐 На сайт</button>
-      <button class="btn btn-ai" id="btnAi" disabled onclick="analyzeAi()">🤖 Анализ AI → Бот</button>
-      <button class="btn btn-delete" id="btnDelete" disabled onclick="deleteFile()">🗑 Удалить</button>
+      <span class="sel-name" id="selName">выберите файл</span>
+      <div class="view-group">
+        <button class="vbtn on" id="vCard" onclick="setView('card')">карточка</button>
+        <button class="vbtn" id="vTable" onclick="setView('table')">таблица</button>
+        <button class="vbtn" id="vJson" onclick="setView('json')">json</button>
+      </div>
+      <div class="spacer"></div>
+      <button class="btn btn-db" id="btnDb" disabled onclick="saveToDb()">💾 в БД</button>
+      <button class="btn btn-site" id="btnSite" disabled onclick="openSiteModal()">🌐 на сайт</button>
+      <button class="btn btn-ai" id="btnAi" disabled onclick="analyzeAi()">🤖 AI → бот</button>
+      <button class="btn btn-done" id="btnDone" disabled onclick="markDone()">✓ готово</button>
+      <button class="btn btn-del" id="btnDel" disabled onclick="deleteFile()">✕</button>
     </div>
-    <div class="content" id="mainContent">
-      <div class="empty"><h2>Выберите файл</h2><p>Выберите файл из списка слева</p></div>
+    <div class="content" id="content">
+      <div class="empty"><h2>AGRO ADMIN</h2><p>выберите файл из списка</p></div>
     </div>
   </div>
 </div>
+
+<!-- MODAL: выбор поставщиков для отправки на сайт -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">🌐 ОТПРАВКА НА САЙТ</div>
+        <div class="modal-sub" id="modalSub">выберите поставщиков для публикации</div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <div class="modal-info">Выбрано: <span id="modalCount">0</span> поставщиков</div>
+      <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted)" onclick="closeModal()">отмена</button>
+      <button class="btn btn-site" id="btnSend" onclick="sendToSite()">🚀 отправить на сайт</button>
+    </div>
+  </div>
+</div>
+
 <script>
-let selectedFile = null;
-let filesData = [];
+const SITE_WEBHOOK = 'https://ВАШ_САЙТ/webhook.php'; // ← заменить на реальный URL
 
-function apiKey() { return document.getElementById('apiKey').value; }
+let files = [], selected = null, curData = null, view = 'card';
+let checkedFiles = new Set();
+let modalSuppliers = [];
 
+const ak = () => document.getElementById('apiKey').value;
+
+// ---- UTILS ----
 function log(msg, type='info') {
   const el = document.getElementById('logArea');
   if (!el) return;
-  const line = document.createElement('div');
-  line.className = `log-line log-${type}`;
-  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-  el.appendChild(line);
+  const d = document.createElement('div');
+  d.className = 'll ' + type;
+  d.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  el.appendChild(d);
   el.scrollTop = el.scrollHeight;
 }
 
+function statusBadge(s) {
+  const map = { new:'fbadge-new', saved:'fbadge-saved', done:'fbadge-done' };
+  const lab = { new:'новый', saved:'в бд', done:'готово' };
+  return `<span class="fbadge ${map[s]||'fbadge-new'}">${lab[s]||'новый'}</span>`;
+}
+
+function setView(v) {
+  view = v;
+  ['card','table','json'].forEach(x => document.getElementById('v'+x.charAt(0).toUpperCase()+x.slice(1)).classList.toggle('on', x===v));
+  if (curData) renderContent(curData);
+}
+
+// ---- LOAD FILES ----
 async function loadFiles() {
   try {
-    const res = await fetch('/files', { headers: { 'x-api-key': apiKey() } });
-    filesData = await res.json();
-    document.getElementById('fileCount').textContent = `Файлов: ${filesData.length}`;
-    const list = document.getElementById('fileList');
-    if (!filesData.length) {
-      list.innerHTML = '<div style="padding:20px;color:#444;text-align:center;">Файлов нет. Ожидаем выгрузку из 1С...</div>';
-      return;
-    }
-    list.innerHTML = filesData.map(f => `
-      <div class="file-item ${selectedFile===f.name?'active':''}" onclick="selectFile('${f.name}')">
-        <div class="file-name">${f.name}</div>
-        <div class="file-meta"><span>${f.created}</span><span>${(f.size/1024).toFixed(1)} KB</span></div>
-      </div>`).join('');
-  } catch(e) {
-    document.getElementById('fileCount').textContent = 'Ошибка';
-  }
+    const r = await fetch('/files', { headers: {'x-api-key': ak()} });
+    files = await r.json();
+    updateStats();
+    renderList();
+  } catch(e) { console.error(e); }
 }
 
+function updateStats() {
+  document.getElementById('sAll').textContent = files.length;
+  document.getElementById('sNew').textContent = files.filter(f=>f.status==='new').length;
+  document.getElementById('sSaved').textContent = files.filter(f=>f.status==='saved').length;
+  document.getElementById('sDone').textContent = files.filter(f=>f.status==='done').length;
+  document.getElementById('sSelected').textContent = checkedFiles.size;
+}
+
+function renderList() {
+  const srch = document.getElementById('srch').value.toLowerCase();
+  const fs = document.getElementById('fStatus').value;
+  const filtered = files.filter(f =>
+    f.name.toLowerCase().includes(srch) && (!fs || f.status === fs)
+  );
+  document.getElementById('sfooter').textContent = `${filtered.length} / ${files.length} файлов`;
+  document.getElementById('batchLabel').textContent = checkedFiles.size ? `выбрано: ${checkedFiles.size}` : 'выберите файлы';
+  updateStats();
+
+  if (!filtered.length) {
+    document.getElementById('fileList').innerHTML = '<div style="padding:20px;text-align:center;font-size:10px;color:var(--muted)">нет файлов</div>';
+    return;
+  }
+  document.getElementById('fileList').innerHTML = filtered.map(f => {
+    const shortName = f.name.replace(/^\d{8}_\d{6}_/, '');
+    return `<div class="file-item ${selected===f.name?'active':''}" onclick="selectFile('${f.name}')">
+      <input type="checkbox" class="file-cb" ${checkedFiles.has(f.name)?'checked':''} 
+        onclick="event.stopPropagation();toggleCheck('${f.name}',this.checked)">
+      <div class="file-info">
+        <div class="file-name">${shortName}</div>
+        <div class="file-meta">
+          <span>${f.created}</span>
+          <span>${(f.size/1024).toFixed(1)}kb</span>
+          ${statusBadge(f.status)}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCheck(name, checked) {
+  checked ? checkedFiles.add(name) : checkedFiles.delete(name);
+  updateStats();
+  document.getElementById('batchLabel').textContent = checkedFiles.size ? `выбрано: ${checkedFiles.size}` : 'выберите файлы';
+}
+
+function selectAll() { files.forEach(f => checkedFiles.add(f.name)); renderList(); }
+function selectNone() { checkedFiles.clear(); renderList(); }
+
+// ---- SELECT FILE ----
 async function selectFile(name) {
-  selectedFile = name;
-  loadFiles();
-  ['btnDb','btnSite','btnAi','btnDelete'].forEach(id => document.getElementById(id).disabled = false);
-  document.getElementById('mainContent').innerHTML = '<div class="empty"><p>Загрузка...</p></div>';
+  selected = name;
+  renderList();
+  ['btnDb','btnSite','btnAi','btnDone','btnDel'].forEach(id => document.getElementById(id).disabled = false);
+  document.getElementById('selName').textContent = name.replace(/^\d{8}_\d{6}_/, '');
+  document.getElementById('content').innerHTML = '<div class="empty"><p>загрузка...</p></div>';
   try {
-    const res = await fetch(`/files/${name}`, { headers: { 'x-api-key': apiKey() } });
-    const data = await res.json();
-    const fi = filesData.find(f => f.name === name);
-    const stats = Array.isArray(data.orders) ? `
-      <div class="stats">
-        <div class="stat-card"><div class="stat-label">Заказов</div><div class="stat-value">${data.orders.length}</div></div>
-        <div class="stat-card"><div class="stat-label">Сумма</div><div class="stat-value">${data.summary?.total_amount?.toLocaleString('ru') || '—'} ₽</div></div>
-        <div class="stat-card"><div class="stat-label">Размер</div><div class="stat-value">${(fi.size/1024).toFixed(1)} KB</div></div>
-        <div class="stat-card"><div class="stat-label">Загружен</div><div class="stat-value" style="font-size:14px">${fi.created}</div></div>
-      </div>` : '';
-    document.getElementById('mainContent').innerHTML = `
-      ${stats}
-      <div class="json-viewer">${JSON.stringify(data, null, 2)}</div>
-      <div class="log" id="logArea"><div class="log-line log-info">Файл открыт: ${name}</div></div>`;
+    const r = await fetch(`/files/${name}`, { headers: {'x-api-key': ak()} });
+    curData = await r.json();
+    renderContent(curData);
   } catch(e) {
-    document.getElementById('mainContent').innerHTML = '<div class="empty"><p>Ошибка загрузки</p></div>';
+    document.getElementById('content').innerHTML = '<div class="empty"><p>ошибка загрузки</p></div>';
   }
 }
 
-async function saveToDb() {
-  if (!selectedFile) return;
-  log('Сохранение в БД...', 'info');
-  try {
-    const res = await fetch(`/save-to-db/${selectedFile}`, {
-      method: 'POST',
-      headers: { 'x-api-key': apiKey() }
-    });
-    const data = await res.json();
-    if (data.status === 'ok') {
-      log(`✅ Сохранено записей: ${data.saved}`, 'ok');
-    } else {
-      log(`❌ Ошибка: ${JSON.stringify(data)}`, 'err');
-    }
-  } catch(e) {
-    log(`❌ Ошибка: ${e}`, 'err');
+// ---- RENDER CONTENT ----
+function renderContent(data) {
+  const fi = files.find(f => f.name === selected) || {};
+  if (view === 'json') {
+    document.getElementById('content').innerHTML = `<div class="json-view">${JSON.stringify(data, null, 2)}</div><div class="log-area" id="logArea"></div>`;
+    return;
   }
+  if (view === 'table') {
+    const sups = data.Закупка || [];
+    document.getElementById('content').innerHTML = `
+      <table class="tbl">
+        <thead><tr><th>#</th><th>Контрагент</th><th>Адрес загрузки</th><th>Показатели</th><th>Цена</th><th>Объём</th><th>ФИО</th></tr></thead>
+        <tbody>${sups.map(s=>`<tr>
+          <td style="color:var(--muted)">${s.НомерСтроки}</td>
+          <td class="name">${s.Контрагент}</td>
+          <td class="addr">${s.АдресЗагрузки}</td>
+          <td>${s.КачественныеПоказатели}</td>
+          <td class="price">${s.Цена}</td>
+          <td>${s.Объем}</td>
+          <td style="font-size:10px;color:var(--muted)">${s.ФИО}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+      <div class="log-area" id="logArea"></div>`;
+    return;
+  }
+  // CARD
+  const sups = data.Закупка || [];
+  document.getElementById('content').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-num">№ ${data.Номер}</div>
+        ${statusBadge(fi.status)}
+      </div>
+      <div class="card-grid">
+        <div class="cf"><div class="cf-label">Дата</div><div class="cf-val">${data.Дата||'—'}</div></div>
+        <div class="cf"><div class="cf-label">Статус</div><div class="cf-val">${data.Статус||'—'}</div></div>
+        <div class="cf"><div class="cf-label">Тип сделки</div><div class="cf-val">${data['Тип сделки']||'—'}</div></div>
+        <div class="cf"><div class="cf-label">Номенклатура</div><div class="cf-val">${data.Номенклатура||'—'}</div></div>
+        <div class="cf"><div class="cf-label">Покупатель</div><div class="cf-val">${data.Покупатель||'—'}</div></div>
+        <div class="cf"><div class="cf-label">Источник</div><div class="cf-val">${data['Источник маржинальности']||'—'}</div></div>
+        <div class="cf"><div class="cf-label">Объём</div><div class="cf-val big">${data['Объём']||'—'}</div></div>
+        <div class="cf"><div class="cf-label">Сумма</div><div class="cf-val blue">${data.Сумма||'—'}</div></div>
+        <div class="cf"><div class="cf-label">Осталось</div><div class="cf-val">${data.Осталось||'—'}</div></div>
+      </div>
+      <div class="cf" style="margin-bottom:14px"><div class="cf-label">Адрес выгрузки</div><div class="cf-val" style="font-size:11px">${data['Адрес выгрузки']||'—'}</div></div>
+      <div class="sec-title">ПОСТАВЩИКИ — ${sups.length}</div>
+      <table class="tbl">
+        <thead><tr><th>#</th><th>Контрагент</th><th>Адрес загрузки</th><th>Показатели</th><th>Цена</th><th>Объём</th><th>ФИО</th></tr></thead>
+        <tbody>${sups.map(s=>`<tr>
+          <td style="color:var(--muted)">${s.НомерСтроки}</td>
+          <td class="name">${s.Контрагент}</td>
+          <td class="addr">${s.АдресЗагрузки}</td>
+          <td>${s.КачественныеПоказатели}</td>
+          <td class="price">${s.Цена}</td>
+          <td>${s.Объем}</td>
+          <td style="font-size:10px;color:var(--muted)">${s.ФИО}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>
+    <div class="log-area" id="logArea"><div class="ll info">[открыт] ${(selected||'').replace(/^\d{8}_\d{6}_/,'')}</div></div>`;
+}
+
+// ---- UPLOAD ----
+async function uploadFiles(fileList) {
+  const dz = document.getElementById('dropZone');
+  dz.textContent = `⏳ загружаю ${fileList.length} файл(ов)...`;
+  let ok = 0;
+  for (const file of fileList) {
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const r = await fetch('/upload', { method: 'POST', headers: {'x-api-key': ak()}, body: fd });
+      const d = await r.json();
+      if (d.status === 'ok') ok++;
+    } catch(e) {}
+  }
+  dz.textContent = `✅ загружено ${ok}/${fileList.length}`;
+  setTimeout(() => { dz.textContent = '⬆ загрузить файлы (drag & drop)'; }, 2500);
+  document.getElementById('fi').value = '';
+  loadFiles();
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('drag');
+  uploadFiles(e.dataTransfer.files);
+}
+
+// ---- SAVE TO DB ----
+async function saveToDb() {
+  if (!selected) return;
+  log('сохранение в БД...', 'info');
+  try {
+    const r = await fetch(`/save-to-db/${selected}`, { method: 'POST', headers: {'x-api-key': ak()} });
+    const d = await r.json();
+    if (d.status === 'ok') { log(`✅ сохранено. поставщиков: ${d.suppliers}`, 'ok'); loadFiles(); }
+    else if (d.status === 'skipped') log(`⚠️ ${d.reason}`, 'err');
+    else log(`❌ ${JSON.stringify(d)}`, 'err');
+  } catch(e) { log(`❌ ${e}`, 'err'); }
+}
+
+// ---- MODAL: САЙТ ----
+function openSiteModal() {
+  if (!curData) return;
+  const sups = curData.Закупка || [];
+  modalSuppliers = sups.map((s, i) => ({ ...s, _selected: true, _price: s.Цена, _qty: s.Объем, _idx: i }));
+
+  document.getElementById('modalSub').textContent = `№${curData.Номер} · ${curData.Номенклатура} · ${curData.Покупатель}`;
+  renderModal();
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function renderModal() {
+  const count = modalSuppliers.filter(s => s._selected).length;
+  document.getElementById('modalCount').textContent = count;
+
+  const selAll = modalSuppliers.every(s => s._selected);
+  document.getElementById('modalBody').innerHTML = `
+    <div class="sel-all-row">
+      <input type="checkbox" id="cbAll" ${selAll?'checked':''} onchange="toggleAll(this.checked)" style="accent-color:var(--accent);width:14px;height:14px">
+      <label for="cbAll">выбрать всех поставщиков (${modalSuppliers.length})</label>
+    </div>
+    ${modalSuppliers.map((s,i) => `
+      <div class="sup-card ${s._selected?'selected':''}" id="sc${i}" onclick="toggleSupplier(${i})">
+        <div class="sup-top">
+          <div class="sup-check" id="ck${i}"></div>
+          <div class="sup-num">#${s.НомерСтроки}</div>
+          <div class="sup-name">${s.Контрагент}</div>
+          <div class="sup-fio">${s.ФИО}</div>
+        </div>
+        <div class="sup-grid">
+          <div class="sup-field">
+            <div class="sup-field-label">ЦЕНА (руб/т)</div>
+            <input id="price${i}" value="${s.Цена}" onclick="event.stopPropagation()" oninput="updateField(${i},'_price',this.value)">
+          </div>
+          <div class="sup-field">
+            <div class="sup-field-label">ОБЪЁМ (т)</div>
+            <input id="qty${i}" value="${s.Объем}" onclick="event.stopPropagation()" oninput="updateField(${i},'_qty',this.value)">
+          </div>
+          <div class="sup-field">
+            <div class="sup-field-label">ПОКАЗАТЕЛИ</div>
+            <input value="${s.КачественныеПоказатели}" onclick="event.stopPropagation()" oninput="updateField(${i},'КачественныеПоказатели',this.value)">
+          </div>
+        </div>
+        <div class="sup-addr">📍 ${s.АдресЗагрузки}</div>
+      </div>
+    `).join('')}
+    <div class="preview-box">
+      <div class="preview-title">👁 ПРЕДПРОСМОТР — что уйдёт на сайт</div>
+      ${modalSuppliers.filter(s=>s._selected).map(s=>`
+        <div class="preview-row">
+          <span class="pname">${curData.Номенклатура} · ${s.Контрагент}</span>
+          <span class="pprice">${s._price} руб</span>
+          <span class="pqty">${s._qty} т</span>
+        </div>
+      `).join('') || '<div style="color:var(--muted);font-size:10px;padding:4px 0">нет выбранных поставщиков</div>'}
+    </div>`;
+}
+
+function toggleSupplier(i) {
+  modalSuppliers[i]._selected = !modalSuppliers[i]._selected;
+  renderModal();
+}
+
+function toggleAll(checked) {
+  modalSuppliers.forEach(s => s._selected = checked);
+  renderModal();
+}
+
+function updateField(i, field, val) {
+  modalSuppliers[i][field] = val;
+  // обновить предпросмотр
+  setTimeout(() => {
+    const preview = document.querySelector('.preview-box');
+    if (preview) {
+      preview.querySelector('.preview-title') && renderModal();
+    }
+  }, 300);
 }
 
 async function sendToSite() {
-  log('⚠️ Сайт — скоро будет подключён', 'err');
+  const toSend = modalSuppliers.filter(s => s._selected);
+  if (!toSend.length) { alert('Выберите хотя бы одного поставщика'); return; }
+
+  document.getElementById('btnSend').textContent = '⏳ отправляю...';
+  document.getElementById('btnSend').disabled = true;
+
+  const payload = {
+    ...curData,
+    Закупка: toSend.map(s => ({
+      ...s,
+      Цена: s._price,
+      Объем: s._qty,
+    }))
+  };
+
+  try {
+    const r = await fetch(SITE_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Api-Key': 'agro_webhook_2025' },
+      body: JSON.stringify(payload)
+    });
+    const d = await r.json();
+    closeModal();
+    if (d.status === 'ok') {
+      log(`✅ на сайт отправлено ${d.inserted} позиций`, 'ok');
+    } else {
+      log(`❌ ошибка: ${JSON.stringify(d)}`, 'err');
+    }
+  } catch(e) {
+    log(`❌ ${e}`, 'err');
+    closeModal();
+  }
+
+  document.getElementById('btnSend').textContent = '🚀 отправить на сайт';
+  document.getElementById('btnSend').disabled = false;
 }
 
-async function analyzeAi() {
-  log('⚠️ AI анализ — скоро будет подключён', 'err');
+// ---- MARK DONE ----
+async function markDone() {
+  if (!selected) return;
+  const r = await fetch(`/mark-done/${selected}`, { method: 'POST', headers: {'x-api-key': ak()} });
+  const d = await r.json();
+  if (d.status === 'ok') { log('✅ помечено как обработано', 'ok'); loadFiles(); }
 }
 
+// ---- DELETE ----
 async function deleteFile() {
-  if (!confirm(`Удалить ${selectedFile}?`)) return;
-  await fetch(`/files/${selectedFile}`, { method: 'DELETE', headers: { 'x-api-key': apiKey() } });
-  log(`Удалён: ${selectedFile}`, 'ok');
-  selectedFile = null;
-  ['btnDb','btnSite','btnAi','btnDelete'].forEach(id => document.getElementById(id).disabled = true);
-  document.getElementById('mainContent').innerHTML = '<div class="empty"><h2>Выберите файл</h2></div>';
+  if (!selected || !confirm(`удалить файл?`)) return;
+  await fetch(`/files/${selected}`, { method: 'DELETE', headers: {'x-api-key': ak()} });
+  log(`удалён: ${selected}`, 'ok');
+  selected = null; curData = null;
+  ['btnDb','btnSite','btnAi','btnDone','btnDel'].forEach(id => document.getElementById(id).disabled = true);
+  document.getElementById('selName').textContent = 'выберите файл';
+  document.getElementById('content').innerHTML = '<div class="empty"><h2>AGRO ADMIN</h2></div>';
   loadFiles();
 }
 
+async function analyzeAi() { log('⚠️ AI анализ — будет подключён позже', 'err'); }
+
+// ---- INIT ----
 loadFiles();
 setInterval(loadFiles, 30000);
 </script>
