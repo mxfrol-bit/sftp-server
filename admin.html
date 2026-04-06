@@ -285,10 +285,35 @@
       <button class="btn btn-site" id="btnSite" disabled onclick="openSiteModal()">🌐 на сайт</button>
       <button class="btn btn-ai" id="btnAi" disabled onclick="analyzeAi()">🤖 AI → бот</button>
       <button class="btn btn-done" id="btnDone" disabled onclick="markDone()">✓ готово</button>
+      <button class="btn" id="btnSql" disabled onclick="exportSql()" style="background:rgba(0,212,170,0.15);color:var(--accent);border:1px solid rgba(0,212,170,0.35)">{ } SQL</button>
       <button class="btn btn-del" id="btnDel" disabled onclick="deleteFile()">✕</button>
     </div>
     <div class="content" id="content">
       <div class="empty"><h2>AGRO ADMIN</h2><p>выберите файл из списка</p></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: SQL EXPORT -->
+<div class="modal-overlay" id="sqlModal">
+  <div class="modal" style="width:780px">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">{ } SQL → products_sale</div>
+        <div class="modal-sub" id="sqlModalSub">готовый INSERT для phpMyAdmin</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('sqlModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button class="btn btn-done" onclick="copySql()">📋 копировать</button>
+        <span style="font-size:10px;color:var(--green)" id="copyStatus"></span>
+      </div>
+      <pre id="sqlText" style="background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:14px;font-size:10px;line-height:1.8;overflow-x:auto;white-space:pre-wrap;color:#7a9ab0;max-height:55vh;overflow-y:auto"></pre>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-info">Вставь в phpMyAdmin → SQL → Вперёд</div>
+      <button class="btn" style="background:var(--surface2);border:1px solid var(--border);color:var(--muted)" onclick="document.getElementById('sqlModal').classList.remove('open')">закрыть</button>
     </div>
   </div>
 </div>
@@ -406,7 +431,7 @@ function selectNone() { checkedFiles.clear(); renderList(); }
 async function selectFile(name) {
   selected = name;
   renderList();
-  ['btnDb','btnSite','btnAi','btnDone','btnDel'].forEach(id => document.getElementById(id).disabled = false);
+  ['btnDb','btnSite','btnAi','btnDone','btnSql','btnDel'].forEach(id => document.getElementById(id).disabled = false);
   document.getElementById('selName').textContent = name.replace(/^\d{8}_\d{6}_/, '');
   document.getElementById('content').innerHTML = '<div class="empty"><p>загрузка...</p></div>';
   try {
@@ -654,13 +679,59 @@ async function deleteFile() {
   await fetch(`/files/${selected}`, { method: 'DELETE', headers: {'x-api-key': ak()} });
   log(`удалён: ${selected}`, 'ok');
   selected = null; curData = null;
-  ['btnDb','btnSite','btnAi','btnDone','btnDel'].forEach(id => document.getElementById(id).disabled = true);
+  ['btnDb','btnSite','btnAi','btnDone','btnSql','btnDel'].forEach(id => document.getElementById(id).disabled = true);
   document.getElementById('selName').textContent = 'выберите файл';
   document.getElementById('content').innerHTML = '<div class="empty"><h2>AGRO ADMIN</h2></div>';
   loadFiles();
 }
 
 async function analyzeAi() { log('⚠️ AI анализ — будет подключён позже', 'err'); }
+
+function esc(s) { return String(s||"").replace(/'/g,"\x27").replace(/\\/g,"\\\\"); }
+
+function cleanNum(s) { return parseInt(String(s).replace(/[^0-9]/g,"")) || 0; }
+
+function exportSql() {
+  if (!curData) return;
+  const fi = files.find(f => f.name === selected) || {};
+  const nom = curData["Номенклатура"] || "";
+  const date = curData["Дата"] || "";
+  const buyer = curData["Покупатель"] || "";
+  const number = curData["Номер"] || "";
+  const delivery = curData["Адрес выгрузки"] || "";
+  const sups = curData["Закупка"] || [];
+  const year = new Date().getFullYear();
+  const lines = sups.map(s => {
+    const price = cleanNum(s["Цена"]);
+    const qty = cleanNum(s["Объем"]);
+    const mesto = esc(s["АдресЗагрузки"] || "");
+    const quality = esc(s["КачественныеПоказатели"] || "");
+    const fio = esc(s["ФИО"] || "");
+    const kontragent = esc(s["Контрагент"] || "");
+    const name = esc(nom);
+    const msg = esc(`№${number} | ${buyer} | ${delivery} | ${quality} | ${fio}`);
+    return `INSERT INTO `products_sale` (`user_id`,`name`,`date`,`price`,`mesto`,`type`,`year`,`country`,`quantity`,`declar`,`protein`,`primes`,`kley`,`cislo`,`belok`,`vlaga`,`zerno`,`steklo`,`natura`,`msg`,`clas`,`zaraza`,`photo1`,`photo2`,`photo3`,`photo4`,`set1`,`set2`,`set3`,`set4`,`set5`,`set6`,`m1`,`m2`,`m3`,`m4`) VALUES (40,'${name}','${date}',${price},'${mesto}','С НДС',${year},'Россия',${qty},'','${quality}','','','','','','','','','${msg}','','','','','','','Самовывоз','Предоплата','','','','','${kontragent}','${fio}','','');`;
+  });
+  const sql = `-- Агро импорт: №${number} (${nom})
+-- Покупатель: ${buyer}
+-- Дата: ${date}
+-- Поставщиков: ${sups.length}
+
+` + lines.join("
+
+");
+  document.getElementById("sqlText").textContent = sql;
+  document.getElementById("sqlModalSub").textContent = `№${number} · ${nom} · ${sups.length} поставщиков`;
+  document.getElementById("sqlModal").classList.add("open");
+}
+
+async function copySql() {
+  const text = document.getElementById("sqlText").textContent;
+  await navigator.clipboard.writeText(text);
+  const s = document.getElementById("copyStatus");
+  s.textContent = "✅ скопировано!";
+  setTimeout(() => s.textContent = "", 2000);
+}
 
 // ---- INIT ----
 loadFiles();
