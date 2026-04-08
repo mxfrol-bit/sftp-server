@@ -134,71 +134,53 @@ async def analyze(filename: str, x_api_key: str = Header(...)):
     suppliers_text = ""
     for s in suppliers:
         suppliers_text += (
-            f"\n- Контрагент: {s.get('Контрагент')}"
-            f"\n  Адрес загрузки: {s.get('АдресЗагрузки')}"
-            f"\n  Цена: {s.get('Цена')} руб/т"
-            f"\n  Объём: {s.get('Объем')} т"
-            f"\n  Качество: {s.get('КачественныеПоказатели')}"
-            f"\n  Менеджер: {s.get('ФИО')}\n"
+            f"\n- Контрагент: {s.get('Контрагент', '')}"
+            f"\n  Адрес загрузки: {s.get('АдресЗагрузки', '')}"
+            f"\n  Цена: {s.get('Цена', '')} руб/т"
+            f"\n  Объём: {s.get('Объем', '')} т"
+            f"\n  Качество: {s.get('КачественныеПоказатели', '')}"
+            f"\n  Менеджер: {s.get('ФИО', '')}\n"
         )
 
-    prompt = f"""Ты эксперт по зерновому рынку России. Проанализируй заявку на закупку зерна.
-
-ДАННЫЕ ЗАЯВКИ:
-- Номер: {number}
-- Дата: {date}
-- Номенклатура: {nomenclature}
-- Покупатель: {buyer}
-- Адрес выгрузки: {delivery}
-- Общий объём: {volume} т
-- Общая сумма: {amount} руб
-
-ПОСТАВЩИКИ:
-{suppliers_text}
-
-ЗАДАЧА:
-1. Оцени каждую цену — дорого/дёшево/рынок относительно текущих цен на {nomenclature} в России
-2. Учти логистику — оцени удалённость адреса загрузки от адреса выгрузки ({delivery})
-3. Выяви лучшие и худшие предложения с учётом цены И логистики
-4. Дай итоговую рекомендацию
-
-ФОРМАТ ОТВЕТА:
-📦 *{nomenclature}* — Анализ №{number}
-📅 Дата: {date}
-🏭 Покупатель: {buyer}
-📍 Выгрузка: {delivery}
-
-💰 *АНАЛИЗ ЦЕН:*
-(для каждого поставщика отдельной строкой)
-✅/🔴/⚠️ Название — цена руб/т | объём т | регион | оценка
-
-📈 *РЫНОЧНАЯ СВОДКА:*
-- Средняя цена по заявке: X руб/т
-- Примерная рыночная цена {nomenclature}: ~X руб/т
-- Разброс: от X до X руб/т
-
-✅ *РЕКОМЕНДАЦИИ:*
-Приоритет 1: название — причина
-Приоритет 2: название — причина
-❌ Не рекомендуется: название — причина
-
-💡 *ВЫВОД:* краткий вывод 2-3 предложения"""
+    prompt = (
+        f"Ты эксперт по зерновому рынку России. Проанализируй заявку на закупку зерна.\n\n"
+        f"ДАННЫЕ ЗАЯВКИ:\n"
+        f"- Номер: {number}\n"
+        f"- Дата: {date}\n"
+        f"- Номенклатура: {nomenclature}\n"
+        f"- Покупатель: {buyer}\n"
+        f"- Адрес выгрузки: {delivery}\n"
+        f"- Общий объём: {volume} т\n"
+        f"- Общая сумма: {amount} руб\n\n"
+        f"ПОСТАВЩИКИ:\n{suppliers_text}\n\n"
+        f"ЗАДАЧА:\n"
+        f"1. Оцени каждую цену - дорого/дешево/рынок относительно текущих цен на {nomenclature} в России\n"
+        f"2. Учти логистику - оцени удаленность адреса загрузки от адреса выгрузки ({delivery})\n"
+        f"3. Выяви лучшие и худшие предложения с учетом цены И логистики\n"
+        f"4. Дай итоговую рекомендацию\n\n"
+        f"ФОРМАТ ОТВЕТА:\n"
+        f"Используй эмодзи. Для каждого поставщика: эмодзи название - цена - объем - регион - оценка.\n"
+        f"Дай рыночную сводку и рекомендации с приоритетами.\n"
+        f"В конце краткий вывод 2-3 предложения."
+    )
 
     try:
+        payload = {
+            "model": "anthropic/claude-3.5-haiku",
+            "messages": [{"role": "user", "content": prompt}],
+            "max_tokens": 2000
+        }
+        payload_bytes = json.dumps(payload, ensure_ascii=False).encode("utf-8")
         async with httpx.AsyncClient(timeout=60) as client:
             response = await client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={
                     "Authorization": f"Bearer {OPENROUTER_KEY}",
-                    "Content-Type": "application/json",
+                    "Content-Type": "application/json; charset=utf-8",
                     "HTTP-Referer": "https://russian-harvest.ru",
-                    "X-Title": "Русский Урожай"
+                    "X-Title": "Russky Urozhai"
                 },
-                json={
-                    "model": "anthropic/claude-3.5-haiku",
-                    "messages": [{"role": "user", "content": prompt}],
-                    "max_tokens": 2000
-                }
+                content=payload_bytes
             )
         result = response.json()
         analysis = result["choices"][0]["message"]["content"]
@@ -208,14 +190,17 @@ async def analyze(filename: str, x_api_key: str = Header(...)):
     tg_sent = False
     if TG_TOKEN and TG_CHAT_ID:
         try:
+            tg_payload = {
+                "chat_id": TG_CHAT_ID,
+                "text": analysis,
+                "parse_mode": "Markdown"
+            }
+            tg_bytes = json.dumps(tg_payload, ensure_ascii=False).encode("utf-8")
             async with httpx.AsyncClient(timeout=30) as client:
                 await client.post(
                     f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
-                    json={
-                        "chat_id": TG_CHAT_ID,
-                        "text": analysis,
-                        "parse_mode": "Markdown"
-                    }
+                    headers={"Content-Type": "application/json; charset=utf-8"},
+                    content=tg_bytes
                 )
             tg_sent = True
         except Exception as e:
@@ -239,4 +224,4 @@ async def admin(credentials: HTTPBasicCredentials = Depends(security)):
 
 @app.get("/")
 def health():
-    return {"status": "running", "service": "Русский Урожай API"}
+    return {"status": "running", "service": "Russky Urozhai API"}
