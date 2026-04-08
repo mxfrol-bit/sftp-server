@@ -679,7 +679,34 @@ async function deleteFile() {
   loadFiles();
 }
 
-function analyzeAi() { log('⚠️ AI анализ будет подключён позже','err'); }
+async function analyzeAi() {
+  if (!selected) return;
+  log('🤖 Запускаю AI анализ... (~30 сек)', 'info');
+  document.getElementById('btnAi').disabled = true;
+  document.getElementById('btnAi').textContent = '⏳ Анализирую...';
+  try {
+    const r = await fetch('/analyze/' + encodeURIComponent(selected), {
+      method: 'POST',
+      headers: {'x-api-key': ak()}
+    });
+    const d = await r.json();
+    if (d.status === 'ok') {
+      log('✅ Анализ готов! Отправлен в Telegram @agromixrus_bot', 'ok');
+      const box = document.createElement('div');
+      box.style.cssText = 'background:#f0f7e8;border:2px solid #7bc142;border-radius:10px;padding:16px;margin-top:14px;font-size:12px;line-height:1.9;white-space:pre-wrap;font-family:inherit;';
+      box.textContent = d.analysis;
+      document.getElementById('content').appendChild(box);
+      document.getElementById('content').scrollTop = document.getElementById('content').scrollHeight;
+      loadFiles();
+    } else {
+      log('❌ Ошибка: ' + JSON.stringify(d), 'err');
+    }
+  } catch(e) {
+    log('❌ ' + e, 'err');
+  }
+  document.getElementById('btnAi').disabled = false;
+  document.getElementById('btnAi').textContent = '🤖 AI анализ';
+}
 
 loadFiles();
 setInterval(loadFiles, 30000);
