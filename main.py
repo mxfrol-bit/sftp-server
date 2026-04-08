@@ -124,7 +124,7 @@ async def analyze(filename: str, x_api_key: str = Header(...)):
 
     number       = data.get("Номер", "")
     date         = data.get("Дата", "")
-    nomenclature = data.get("Номенклатура", "")
+    nomenclature = data.get("Номенклатура", "").strip()
     buyer        = data.get("Покупатель", "")
     delivery     = data.get("Адрес выгрузки", "")
     volume       = data.get("Объём", "")
@@ -132,46 +132,80 @@ async def analyze(filename: str, x_api_key: str = Header(...)):
     suppliers    = data.get("Закупка", [])
 
     suppliers_text = ""
-    for s in suppliers:
+    for i, s in enumerate(suppliers, 1):
         suppliers_text += (
-            f"\n- Контрагент: {s.get('Контрагент', '')}"
-            f"\n  Адрес загрузки: {s.get('АдресЗагрузки', '')}"
-            f"\n  Цена: {s.get('Цена', '')} руб/т"
-            f"\n  Объём: {s.get('Объем', '')} т"
-            f"\n  Качество: {s.get('КачественныеПоказатели', '')}"
-            f"\n  Менеджер: {s.get('ФИО', '')}\n"
+            f"\n{i}. {s.get('Контрагент', '')}"
+            f"\n   Адрес загрузки: {s.get('АдресЗагрузки', '')}"
+            f"\n   Цена: {s.get('Цена', '')} руб/т | Объём: {s.get('Объем', '')} т"
+            f"\n   Качество: {s.get('КачественныеПоказатели', '')}"
+            f"\n   Ответственный: {s.get('ФИО', '')}\n"
         )
 
     prompt = (
-        f"Ты эксперт по зерновому рынку России. Проанализируй заявку на закупку зерна.\n\n"
+        f"Ты старший закупщик зернового рынка России с 10-летним опытом. "
+        f"Готовишь аналитическую справку для руководителя компании. "
+        f"Анализ должен быть профессиональным, конкретным, с реальными рыночными данными и помогать принять решение.\n\n"
+
         f"ДАННЫЕ ЗАЯВКИ:\n"
-        f"- Номер: {number}\n"
-        f"- Дата: {date}\n"
-        f"- Номенклатура: {nomenclature}\n"
-        f"- Покупатель: {buyer}\n"
-        f"- Адрес выгрузки: {delivery}\n"
-        f"- Общий объём: {volume} т\n"
-        f"- Общая сумма: {amount} руб\n\n"
+        f"Номер: {number} | Дата: {date}\n"
+        f"Культура: {nomenclature}\n"
+        f"Покупатель: {buyer}\n"
+        f"Точка выгрузки: {delivery}\n"
+        f"Требуемый объём: {volume} т | Сумма: {amount} руб\n\n"
+
         f"ПОСТАВЩИКИ:\n{suppliers_text}\n\n"
-        f"ЗАДАЧА:\n"
-        f"1. Оцени каждую цену - дорого/дешево/рынок относительно текущих цен на {nomenclature} в России\n"
-        f"2. Учти логистику - оцени удаленность адреса загрузки от адреса выгрузки ({delivery})\n"
-        f"3. Выяви лучшие и худшие предложения с учетом цены И логистики\n"
-        f"4. Дай итоговую рекомендацию\n\n"
-        f"ФОРМАТ ОТВЕТА:\n"
-        f"Используй эмодзи. Для каждого поставщика: эмодзи название - цена - объем - регион - оценка.\n"
-        f"Дай рыночную сводку и рекомендации с приоритетами.\n"
-        f"В конце краткий вывод 2-3 предложения."
+
+        f"ПОДГОТОВЬ ОТЧЁТ ПО СЛЕДУЮЩЕЙ СТРУКТУРЕ:\n\n"
+
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
+        f"АНАЛИТИЧЕСКАЯ СПРАВКА №{number}\n"
+        f"Культура: {nomenclature} | Дата: {date}\n"
+        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
+
+        f"БЛОК 1 - РЫНОК\n"
+        f"Напиши текущую рыночную цену на {nomenclature} в России весной 2026 года. "
+        f"Укажи диапазон цен по регионам (Центр, Поволжье, Юг, Сибирь). "
+        f"Опиши сезонный тренд и ключевые факторы влияющие на цену.\n\n"
+
+        f"БЛОК 2 - АНАЛИЗ КАЖДОГО ПОСТАВЩИКА\n"
+        f"Для каждого поставщика сделай карточку:\n"
+        f"- Статус (выгодно/рынок/дорого/подозрительно)\n"
+        f"- Цена и отклонение от рынка в процентах\n"
+        f"- Примерное расстояние от региона загрузки до {delivery} и стоимость доставки\n"
+        f"- Итоговая цена с доставкой\n"
+        f"- Риски и плюсы\n\n"
+
+        f"БЛОК 3 - СВОДКА\n"
+        f"Мин/макс/средняя цена по заявке. Сравнение с рынком. "
+        f"Потенциальная экономия при выборе лучших поставщиков в рублях.\n\n"
+
+        f"БЛОК 4 - ЛОГИСТИКА\n"
+        f"Оцени транспортное плечо и риски логистики для каждого поставщика.\n\n"
+
+        f"БЛОК 5 - РИСКИ\n"
+        f"Перечисли риски по каждому поставщику и общие рыночные риски. "
+        f"Отметь красные флаги если есть (подозрительно низкие цены, неизвестные контрагенты).\n\n"
+
+        f"БЛОК 6 - РЕЙТИНГ\n"
+        f"Пронумеруй всех поставщиков от лучшего к худшему с итоговой ценой включая доставку.\n\n"
+
+        f"БЛОК 7 - СТРАТЕГИЯ ДЛЯ РУКОВОДИТЕЛЯ\n"
+        f"Оптимальная стратегия закупки: у кого брать, сколько тонн у каждого, "
+        f"где торговаться и на сколько процентов, итоговый бюджет, ожидаемая экономия.\n\n"
+
+        f"БЛОК 8 - ЗАКЛЮЧЕНИЕ\n"
+        f"5-7 предложений для руководителя: ситуация на рынке, лучшие поставщики, "
+        f"экономия, риски, что делать прямо сейчас. Конкретно, с цифрами, без воды."
     )
 
     try:
         payload = {
             "model": "anthropic/claude-3.5-haiku",
             "messages": [{"role": "user", "content": prompt}],
-            "max_tokens": 2000
+            "max_tokens": 4000
         }
         payload_bytes = json.dumps(payload, ensure_ascii=False).encode("utf-8")
-        async with httpx.AsyncClient(timeout=60) as client:
+        async with httpx.AsyncClient(timeout=90) as client:
             response = await client.post(
                 "https://openrouter.ai/api/v1/chat/completions",
                 headers={
@@ -187,27 +221,30 @@ async def analyze(filename: str, x_api_key: str = Header(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"OpenRouter error: {str(e)}")
 
+    # Отправка в Telegram — разбиваем на части если длинный текст
     tg_sent = False
     if TG_TOKEN and TG_CHAT_ID:
         try:
-            tg_payload = {
-                "chat_id": TG_CHAT_ID,
-                "text": analysis,
-                "parse_mode": "Markdown"
-            }
-            tg_bytes = json.dumps(tg_payload, ensure_ascii=False).encode("utf-8")
             async with httpx.AsyncClient(timeout=30) as client:
-                await client.post(
-                    f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
-                    headers={"Content-Type": "application/json; charset=utf-8"},
-                    content=tg_bytes
-                )
+                # Telegram ограничение 4096 символов — разбиваем
+                chunks = [analysis[i:i+4000] for i in range(0, len(analysis), 4000)]
+                for chunk in chunks:
+                    tg_payload = {
+                        "chat_id": TG_CHAT_ID,
+                        "text": chunk,
+                        "parse_mode": "Markdown"
+                    }
+                    tg_bytes = json.dumps(tg_payload, ensure_ascii=False).encode("utf-8")
+                    await client.post(
+                        f"https://api.telegram.org/bot{TG_TOKEN}/sendMessage",
+                        headers={"Content-Type": "application/json; charset=utf-8"},
+                        content=tg_bytes
+                    )
             tg_sent = True
         except Exception as e:
             print(f"Telegram error: {e}")
 
     sb.table("uploads").update({"status": "done"}).eq("filename", filename).execute()
-
     return {"status": "ok", "analysis": analysis, "tg_sent": tg_sent}
 
 @app.get("/admin", response_class=HTMLResponse)
@@ -218,7 +255,7 @@ async def admin(credentials: HTTPBasicCredentials = Depends(security)):
         raise HTTPException(
             status_code=401,
             headers={"WWW-Authenticate": "Basic"},
-            detail="Неверный логин или пароль"
+            detail="Unauthorized"
         )
     return open("/app/admin.html").read()
 
