@@ -1,5 +1,5 @@
 FROM python:3.11-slim
-RUN pip install fastapi uvicorn python-multipart supabase httpx
+RUN pip install fastapi uvicorn python-multipart supabase httpx pymysql
 WORKDIR /app
 COPY main.py .
 COPY admin.html .

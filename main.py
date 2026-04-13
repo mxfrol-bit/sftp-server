@@ -4,6 +4,7 @@ from fastapi.security import HTTPBasic, HTTPBasicCredentials
 import os, json, httpx, secrets
 from datetime import datetime
 from supabase import create_client
+import pymysql
 
 app = FastAPI()
 security = HTTPBasic()
@@ -16,9 +17,23 @@ TG_TOKEN       = os.getenv("TG_TOKEN")
 TG_CHAT_ID     = os.getenv("TG_CHAT_ID")
 ADMIN_USER     = os.getenv("ADMIN_USER", "admin")
 ADMIN_PASS     = os.getenv("ADMIN_PASS", "harvest2025")
+DB_HOST        = os.getenv("DB_HOST")
+DB_USER        = os.getenv("DB_USER")
+DB_PASS        = os.getenv("DB_PASS")
+DB_NAME        = os.getenv("DB_NAME")
 
 def get_supabase():
     return create_client(SUPABASE_URL, SUPABASE_KEY)
+
+def get_mysql():
+    return pymysql.connect(
+        host=DB_HOST,
+        user=DB_USER,
+        password=DB_PASS,
+        database=DB_NAME,
+        charset="utf8",
+        cursorclass=pymysql.cursors.DictCursor
+    )
 
 @app.post("/upload")
 async def upload(file: UploadFile = File(...), x_api_key: str = Header(...)):
@@ -113,6 +128,76 @@ async def mark_done(filename: str, x_api_key: str = Header(...)):
     sb.table("uploads").update({"status": "done"}).eq("filename", filename).execute()
     return {"status": "ok"}
 
+@app.post("/push-to-site/{filename}")
+async def push_to_site(filename: str, x_api_key: str = Header(...),
+                       suppliers: str = None):
+    if x_api_key != API_KEY:
+        raise HTTPException(status_code=403)
+
+    sb = get_supabase()
+    content = sb.storage.from_("uploads").download(filename)
+    data = json.loads(content.decode("utf-8-sig"))
+
+    nom      = data.get("Номенклатура", "").strip()
+    date     = data.get("Дата", "")
+    buyer    = data.get("Покупатель", "")
+    number   = data.get("Номер", "")
+    delivery = data.get("Адрес выгрузки", "")
+    all_sups = data.get("Закупка", [])
+
+    # Если переданы индексы поставщиков — берём только их
+    if suppliers:
+        try:
+            indices = [int(i) for i in suppliers.split(",")]
+            all_sups = [s for i, s in enumerate(all_sups) if i in indices]
+        except:
+            pass
+
+    try:
+        db = get_mysql()
+        inserted = 0
+        year = datetime.now().year
+
+        with db.cursor() as cur:
+            for s in all_sups:
+                price    = int(''.join(filter(str.isdigit, str(s.get("Цена", "0"))))) or 0
+                quantity = int(''.join(filter(str.isdigit, str(s.get("Объем", "0"))))) or 0
+                mesto    = s.get("АдресЗагрузки", "")
+                quality  = s.get("КачественныеПоказатели", "")
+                fio      = s.get("ФИО", "")
+                kontragent = s.get("Контрагент", "")
+                msg = f"№{number} | {buyer} | {delivery} | {quality} | {fio}"
+
+                cur.execute("""
+                    INSERT INTO products_sale
+                    (user_id, name, date, price, mesto, type, year, country, quantity,
+                     declar, protein, primes, kley, cislo, belok, vlaga, zerno, steklo,
+                     natura, msg, clas, zaraza, photo1, photo2, photo3, photo4,
+                     set1, set2, set3, set4, set5, set6, m1, m2, m3, m4)
+                    VALUES
+                    (%s,%s,%s,%s,%s,%s,%s,%s,%s,
+                     %s,%s,%s,%s,%s,%s,%s,%s,%s,
+                     %s,%s,%s,%s,%s,%s,%s,%s,
+                     %s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                """, (
+                    40, nom, date, price, mesto, "С НДС", year, "Россия", quantity,
+                    "", quality, "", "", "", "", "", "", "",
+                    "", msg, "", "", "", "", "", "",
+                    "Самовывоз", "Предоплата", "", "", "", "", kontragent, fio, "", ""
+                ))
+                inserted += 1
+
+        db.commit()
+        db.close()
+
+        # Обновляем статус файла
+        sb.table("uploads").update({"status": "done"}).eq("filename", filename).execute()
+
+        return {"status": "ok", "inserted": inserted}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"MySQL error: {str(e)}")
+
 @app.post("/analyze/{filename}")
 async def analyze(filename: str, x_api_key: str = Header(...)):
     if x_api_key != API_KEY:
@@ -135,67 +220,47 @@ async def analyze(filename: str, x_api_key: str = Header(...)):
     for i, s in enumerate(suppliers, 1):
         suppliers_text += (
             f"\n{i}. {s.get('Контрагент', '')}"
-            f"\n   Адрес загрузки: {s.get('АдресЗагрузки', '')}"
+            f"\n   Адрес: {s.get('АдресЗагрузки', '')}"
             f"\n   Цена: {s.get('Цена', '')} руб/т | Объём: {s.get('Объем', '')} т"
             f"\n   Качество: {s.get('КачественныеПоказатели', '')}"
-            f"\n   Ответственный: {s.get('ФИО', '')}\n"
+            f"\n   Менеджер: {s.get('ФИО', '')}\n"
         )
 
     prompt = (
         f"Ты старший закупщик зернового рынка России с 10-летним опытом. "
         f"Готовишь аналитическую справку для руководителя компании. "
-        f"Анализ должен быть профессиональным, конкретным, с реальными рыночными данными и помогать принять решение.\n\n"
-
+        f"Анализ должен быть профессиональным, конкретным, с реальными рыночными данными.\n\n"
         f"ДАННЫЕ ЗАЯВКИ:\n"
         f"Номер: {number} | Дата: {date}\n"
         f"Культура: {nomenclature}\n"
         f"Покупатель: {buyer}\n"
         f"Точка выгрузки: {delivery}\n"
         f"Требуемый объём: {volume} т | Сумма: {amount} руб\n\n"
-
         f"ПОСТАВЩИКИ:\n{suppliers_text}\n\n"
-
-        f"ПОДГОТОВЬ ОТЧЁТ ПО СЛЕДУЮЩЕЙ СТРУКТУРЕ:\n\n"
-
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n"
-        f"АНАЛИТИЧЕСКАЯ СПРАВКА №{number}\n"
-        f"Культура: {nomenclature} | Дата: {date}\n"
-        f"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
-
+        f"ПОДГОТОВЬ ОТЧЁТ ПО СТРУКТУРЕ:\n\n"
         f"БЛОК 1 - РЫНОК\n"
-        f"Напиши текущую рыночную цену на {nomenclature} в России весной 2026 года. "
-        f"Укажи диапазон цен по регионам (Центр, Поволжье, Юг, Сибирь). "
-        f"Опиши сезонный тренд и ключевые факторы влияющие на цену.\n\n"
-
+        f"Текущая цена на {nomenclature} в России весной 2026. "
+        f"Диапазон по регионам. Сезонный тренд. Ключевые факторы.\n\n"
         f"БЛОК 2 - АНАЛИЗ КАЖДОГО ПОСТАВЩИКА\n"
-        f"Для каждого поставщика сделай карточку:\n"
-        f"- Статус (выгодно/рынок/дорого/подозрительно)\n"
-        f"- Цена и отклонение от рынка в процентах\n"
-        f"- Примерное расстояние от региона загрузки до {delivery} и стоимость доставки\n"
-        f"- Итоговая цена с доставкой\n"
-        f"- Риски и плюсы\n\n"
-
+        f"Карточка для каждого: статус (выгодно/рынок/дорого/подозрительно), "
+        f"отклонение от рынка в %, расстояние до {delivery}, "
+        f"стоимость доставки, итоговая цена с доставкой, риски, плюсы.\n\n"
         f"БЛОК 3 - СВОДКА\n"
-        f"Мин/макс/средняя цена по заявке. Сравнение с рынком. "
-        f"Потенциальная экономия при выборе лучших поставщиков в рублях.\n\n"
-
+        f"Мин/макс/средняя цена. Сравнение с рынком. "
+        f"Потенциальная экономия при выборе лучших в рублях.\n\n"
         f"БЛОК 4 - ЛОГИСТИКА\n"
-        f"Оцени транспортное плечо и риски логистики для каждого поставщика.\n\n"
-
+        f"Транспортное плечо и риски для каждого поставщика.\n\n"
         f"БЛОК 5 - РИСКИ\n"
-        f"Перечисли риски по каждому поставщику и общие рыночные риски. "
-        f"Отметь красные флаги если есть (подозрительно низкие цены, неизвестные контрагенты).\n\n"
-
+        f"Риски по каждому поставщику и рыночные риски. "
+        f"Красные флаги если есть.\n\n"
         f"БЛОК 6 - РЕЙТИНГ\n"
-        f"Пронумеруй всех поставщиков от лучшего к худшему с итоговой ценой включая доставку.\n\n"
-
+        f"Все поставщики от лучшего к худшему с итоговой ценой включая доставку.\n\n"
         f"БЛОК 7 - СТРАТЕГИЯ ДЛЯ РУКОВОДИТЕЛЯ\n"
-        f"Оптимальная стратегия закупки: у кого брать, сколько тонн у каждого, "
-        f"где торговаться и на сколько процентов, итоговый бюджет, ожидаемая экономия.\n\n"
-
+        f"У кого брать, сколько тонн у каждого, где торговаться и на сколько, "
+        f"итоговый бюджет, ожидаемая экономия.\n\n"
         f"БЛОК 8 - ЗАКЛЮЧЕНИЕ\n"
-        f"5-7 предложений для руководителя: ситуация на рынке, лучшие поставщики, "
-        f"экономия, риски, что делать прямо сейчас. Конкретно, с цифрами, без воды."
+        f"5-7 предложений: ситуация на рынке, лучшие поставщики, "
+        f"экономия, риски, что делать прямо сейчас. Конкретно с цифрами."
     )
 
     try:
@@ -221,12 +286,10 @@ async def analyze(filename: str, x_api_key: str = Header(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"OpenRouter error: {str(e)}")
 
-    # Отправка в Telegram — разбиваем на части если длинный текст
     tg_sent = False
     if TG_TOKEN and TG_CHAT_ID:
         try:
             async with httpx.AsyncClient(timeout=30) as client:
-                # Telegram ограничение 4096 символов — разбиваем
                 chunks = [analysis[i:i+4000] for i in range(0, len(analysis), 4000)]
                 for chunk in chunks:
                     tg_payload = {
